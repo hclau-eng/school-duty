@@ -166,6 +166,12 @@
                     <option value="F">Day F</option>
                 </select>
                 <p class="small">選擇日期後會自動顯示對應 Day。點選「到」或「缺」後，請按「儲存」確認（會記錄時間）。</p>
+                <div class="card" style="margin-bottom:12px;">
+                    <label>選擇時段：</label>
+                    <select id="timeSlotSelect" onchange="loadDayAF()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;">
+                        <option value="all">全部時段</option>
+                    </select>
+                </div>
                 <div id="dayafList"></div>
             </div>
         </div>
@@ -658,7 +664,6 @@
 
         function loadDayAF() {
             const date = document.getElementById("dayafDate").value;
-            // Auto-detect Day from calendar
             const autoDay = DAY_MAP[date] || "";
             const daySelect = document.getElementById("daySelect");
             if (autoDay) {
@@ -666,22 +671,44 @@
             }
             const day = daySelect.value;
             const container = document.getElementById("dayafList");
+            const timeSlotSelect = document.getElementById("timeSlotSelect");
+            const selectedSlot = timeSlotSelect ? timeSlotSelect.value : "all";
+            
+            // Collect unique time slots for the selector
+            const dateObj = new Date(date);
+            const isFri = dateObj.getDay() === 5;
+            const slots = new Set();
+            DUTY_DATA.dayAF.positions.forEach(item => {
+                const t = isFri && item.timeFri ? item.timeFri : (item.timeMonThu || "");
+                if (t) slots.add(t);
+            });
+            if (timeSlotSelect) {
+                const current = timeSlotSelect.value;
+                timeSlotSelect.innerHTML = '<option value="all">全部時段</option>';
+                Array.from(slots).sort().forEach(s => {
+                    timeSlotSelect.innerHTML += `<option value="${s}">${s}</option>`;
+                });
+                if (current && (current === "all" || slots.has(current))) {
+                    timeSlotSelect.value = current;
+                }
+            }
+
             let missing = [];
             let html = "";
 
             DUTY_DATA.dayAF.positions.forEach(item => {
                 const original = item.teachers[day];
                 if (!original) return;
+                const displayTime = isFri && item.timeFri ? item.timeFri : (item.timeMonThu || "");
+                if (!displayTime) return;
+                if (selectedSlot !== "all" && displayTime !== selectedSlot) return;
+                
                 const teacher = getTeacher("dayaf", date, day, item.pos, original);
                 const key = `dayaf_${date}_${day}_${item.pos}`;
                 const status = getStatus(key);
                 const savedTime = getSavedTime(key);
                 if (status === "pending" || status === "absent") missing.push(`${teacher}（${item.pos}）`);
-                const dateObj = new Date(date);
-            const isFri = dateObj.getDay() === 5;
-            const displayTime = isFri && item.timeFri ? item.timeFri : (item.timeMonThu || "");
-            if (!displayTime) return; // skip if no time for this weekday
-            html += `
+                html += `
                     <div class="duty-row">
                         <div class="duty-info">
                             <strong>${item.pos}</strong>
