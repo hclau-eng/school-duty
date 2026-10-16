@@ -396,7 +396,7 @@
         };
         let tempMarks = {};
 
-        let SCRIPT_URL = localStorage.getItem("dutyScriptUrl") || "https://script.google.com/macros/s/AKfycbzqbiaegb6-ve7dQEty3gn5LUz4Vtp7niMB0JTXPMtirVy1LCc3OHbbouX9oiQsCSCS/exec";
+        let SCRIPT_URL = localStorage.getItem("dutyScriptUrl") || "https://script.google.com/macros/s/AKfycbwW1Cmj9b4Sk4FSLIvu3bUOloJOyq9elCuGyD57MWYlhhPLUiCL4j8Rd5jK9d34leU/exec";
 
         function saveScriptUrl() {
             SCRIPT_URL = document.getElementById("scriptUrl").value.trim();
@@ -666,9 +666,18 @@
             const date = document.getElementById("dayafDate").value;
             const autoDay = DAY_MAP[date] || "";
             const daySelect = document.getElementById("daySelect");
-            if (autoDay) {
-                daySelect.value = autoDay;
+            const container = document.getElementById("dayafList");
+            
+            // 非上學日：清空當值資料
+            if (!autoDay) {
+                if (daySelect) daySelect.value = "";
+                if (container) container.innerHTML = "<p class='small' style='color:#E65100;'>此日為非上學日／假期，無需當值。</p>";
+                const alertEl = document.getElementById("dayafAlert");
+                if (alertEl) alertEl.classList.add("hidden");
+                return;
             }
+            
+            if (daySelect) daySelect.value = autoDay;
             const day = daySelect.value;
             const container = document.getElementById("dayafList");
             const timeSlotSelect = document.getElementById("timeSlotSelect");
@@ -739,9 +748,15 @@
             const date = document.getElementById("patrolDate").value;
             const autoDay = DAY_MAP[date] || "";
             const daySelect = document.getElementById("patrolDay");
-            if (autoDay) {
-                daySelect.value = autoDay;
+            const container = document.getElementById("patrolList");
+            
+            if (!autoDay) {
+                if (daySelect) daySelect.value = "";
+                if (container) container.innerHTML = "<p class='small' style='color:#E65100;'>此日為非上學日／假期，無需巡堂。</p>";
+                return;
             }
+            
+            if (daySelect) daySelect.value = autoDay;
             const day = daySelect.value;
             const container = document.getElementById("patrolList");
             let missing = [];
