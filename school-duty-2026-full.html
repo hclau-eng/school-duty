@@ -272,6 +272,8 @@
     <footer>佛教沈香林紀念中學 · 2026/27 當值出勤系統</footer>
 
     <script>
+        const STUDENTS = {"1A": [{"no": "1", "name": "陳雪琳"}, {"no": "2", "name": "陳映璇"}, {"no": "3", "name": "張菁芯"}, {"no": "4", "name": "張敏儀"}, {"no": "5", "name": "劉夢涵"}, {"no": "6", "name": "羅樂晴"}, {"no": "7", "name": "李芷瑤"}, {"no": "8", "name": "梁洛郗"}, {"no": "9", "name": "馬晞曈"}, {"no": "10", "name": "孫嘉晨"}, {"no": "11", "name": "王程"}, {"no": "12", "name": "黃采怩"}, {"no": "13", "name": "丘佩加"}, {"no": "14", "name": "楊穎霖"}, {"no": "15", "name": "余泳霖"}, {"no": "16", "name": "陳尚言"}, {"no": "17", "name": "陳英杰"}, {"no": "18", "name": "鄭子朗"}, {"no": "19", "name": "朱梓廷"}, {"no": "20", "name": "劉柏亨"}, {"no": "21", "name": "李銘洛"}, {"no": "22", "name": "李珀維"}, {"no": "23", "name": "李耀坤"}, {"no": "24", "name": "林軒泓"}, {"no": "25", "name": "文梓軒"}, {"no": "26", "name": "蕭逸謙"}, {"no": "27", "name": "鄧峻豪"}, {"no": "28", "name": "鄧子俊"}, {"no": "29", "name": "王洛宸"}, {"no": "30", "name": "黃以同"}, {"no": "31", "name": "胡琛"}, {"no": "32", "name": "余塏堯"}, {"no": "33", "name": "鍾泫楓"}], "1B": [{"no": "1", "name": "陳鍶萱"}, {"no": "2", "name": "陳紫悠"}, {"no": "3", "name": "張曉彤"}, {"no": "4", "name": "蔡芷珩"}, {"no": "5", "name": "郭漫稀"}, {"no": "6", "name": "郭蔚藍"}, {"no": "7", "name": "林梓澄"}, {"no": "8", "name": "李舒雅"}, {"no": "9", "name": "廖念慈"}, {"no": "10", "name": "吳卓洛"}, {"no": "11", "name": "饒語婷"}, {"no": "12", "name": "温惠迦"}, {"no": "13", "name": "王芷欣"}, {"no": "14", "name": "黃子瑜"}, {"no": "15", "name": "葉曉晴"}, {"no": "16", "name": "鄭海恩"}, {"no": "17", "name": "張浩康"}, {"no": "18", "name": "蔡永傑"}, {"no": "19", "name": "鍾嘉煒"}, {"no": "20", "name": "方嘉謙"}, {"no": "21", "name": "馮昱博"}, {"no": "22", "name": "李梓朗"}, {"no": "23", "name": "梁鎧鎽"}, {"no": "24", "name": "梁梓培"}, {"no": "25", "name": "李銘輝"}, {"no": "26", "name": "李思齊"}, {"no": "27", "name": "龍啟生"}, {"no": "28", "name": "吳彥辰"}, {"no": "30", "name": "陶卓熙"}, {"no": "31", "name": "曾舜"}, {"no": "32", "name": "王駿軒"}, {"no": "33", "name": "葉斐"}], "1C": [{"no": "1", "name": "柏芊彤"}, {"no": "2", "name": "陳慧"}, {"no": "3", "name": "陳睿妍"}, {"no": "4", "name": "張宇菲"}, {"no": "5", "name": "張逸晞"}, {"no": "6", "name": "方翠僑"}, {"no": "7", "name": "黎晞蕾"}, {"no": "8", "name": "劉卓如"}, {"no": "9", "name": "梁樂翹"}, {"no": "10", "name": "梁心喬"}, {"no": "11", "name": "梁芷悠"}, {"no": "12", "name": "屈歐荷"}, {"no": "13", "name": "司徒海晴"}, {"no": "14", "name": "杜衍柔"}, {"no": "15", "name": "謝翹楚"}, {"no": "16", "name": "畢安仁"}, {"no": "17", "name": "湛信犧"}, {"no": "18", "name": "鄭舜烺"}, {"no": "19", "name": "趙梓謙"}, {"no": "20", "name": "蔡承軒"}, {"no": "21", "name": "黃諾恆"}, {"no": "22", "name": "森文"}, {"no": "23", "name": "林則丞"}, {"no": "24", "name": "林俊宇"}, {"no": "25", "name": "林鈞慈"}, {"no": "26", "name": "勞梓桓"}, {"no": "27", "name": "李昊晉"}, {"no": "28", "name": "羅朗軒"}, {"no": "29", "name": "冼峻熙"}, {"no": "30", "name": "陳家輝"}, {"no": "31", "name": "曾湙森"}, {"no": "32", "name": "黃琛賢"}, {"no": "33", "name": "叶家明"}], "2A": [{"no": "1", "name": "陳祉彤"}, {"no": "2", "name": "周嘉洋"}, {"no": "3", "name": "鍾慧欣"}, {"no": "4", "name": "高莉雅"}, {"no": "5", "name": "何明希"}, {"no": "6", "name": "李志玲"}, {"no": "7", "name": "劉园姍"}, {"no": "8", "name": "羅晞彤"}, {"no": "9", "name": "莫雅馨"}, {"no": "10", "name": "魏慕儀"}, {"no": "11", "name": "董殷彤"}, {"no": "12", "name": "黃靖潼"}, {"no": "13", "name": "趙沛淇"}, {"no": "14", "name": "朱嘉怡"}, {"no": "15", "name": "陳俊鎧"}, {"no": "16", "name": "陳嘉浩"}, {"no": "17", "name": "陳致遠"}, {"no": "18", "name": "林晉浩"}, {"no": "19", "name": "林聰"}, {"no": "20", "name": "林思瀚"}, {"no": "21", "name": "梁卓晞"}, {"no": "22", "name": "羅皓藝"}, {"no": "23", "name": "吳逸熹"}, {"no": "24", "name": "蘇珈樂"}, {"no": "25", "name": "譚智軒"}, {"no": "26", "name": "譚俊亨"}, {"no": "27", "name": "譚天佑"}, {"no": "28", "name": "王駿"}, {"no": "29", "name": "楊子鵬"}, {"no": "30", "name": "鄭進知"}], "2B": [{"no": "1", "name": "陳沛怡"}, {"no": "2", "name": "馮梓晴"}, {"no": "3", "name": "李詠芯"}, {"no": "4", "name": "梁詩雨"}, {"no": "5", "name": "梁斯辰"}, {"no": "6", "name": "李永晴"}, {"no": "7", "name": "劉芯瑩"}, {"no": "8", "name": "羅紫菱"}, {"no": "9", "name": "麥曉蕎"}, {"no": "10", "name": "王鎧澄"}, {"no": "12", "name": "丘綽潁"}, {"no": "13", "name": "鄒詠潔"}, {"no": "14", "name": "趙逸熙"}, {"no": "15", "name": "朱梓僑"}, {"no": "16", "name": "鍾皓然"}, {"no": "17", "name": "黃啟軒"}, {"no": "18", "name": "郭靖"}, {"no": "19", "name": "林靖軒"}, {"no": "20", "name": "劉曉楠"}, {"no": "21", "name": "李炫樞"}, {"no": "22", "name": "文鍵誠"}, {"no": "23", "name": "彭子朗"}, {"no": "24", "name": "秦顥峰"}, {"no": "25", "name": "蘇文熙"}, {"no": "26", "name": "鄧永城"}, {"no": "27", "name": "王梓鋒"}, {"no": "28", "name": "黃望然"}, {"no": "29", "name": "胡展豪"}, {"no": "30", "name": "英峻"}, {"no": "31", "name": "余嘉熙"}, {"no": "32", "name": "鄭凱聰"}], "2C": [{"no": "1", "name": "歐陽孔穎"}, {"no": "2", "name": "陳思遙"}, {"no": "3", "name": "周嘉欣"}, {"no": "4", "name": "刁若媤"}, {"no": "5", "name": "方梓琪"}, {"no": "6", "name": "方梓璐"}, {"no": "7", "name": "黃藝欽"}, {"no": "8", "name": "梁雅敏"}, {"no": "9", "name": "邵紫瑩"}, {"no": "10", "name": "黃健橦"}, {"no": "11", "name": "黃汶蔚"}, {"no": "12", "name": "任寶兒"}, {"no": "13", "name": "葉曉璇"}, {"no": "14", "name": "余梓穎"}, {"no": "15", "name": "占墨"}, {"no": "16", "name": "劉注文"}, {"no": "17", "name": "陳柏均"}, {"no": "18", "name": "張柏賢"}, {"no": "19", "name": "洪偉景"}, {"no": "20", "name": "林柏豪"}, {"no": "21", "name": "林梓賢"}, {"no": "22", "name": "劉振軒"}, {"no": "23", "name": "李浩林"}, {"no": "24", "name": "劉子懌"}, {"no": "25", "name": "劉梓熠"}, {"no": "26", "name": "毛智銳"}, {"no": "27", "name": "莫家熙"}, {"no": "28", "name": "王銘裕"}, {"no": "29", "name": "楊政"}, {"no": "30", "name": "楊子浩"}, {"no": "31", "name": "劉心琪"}], "3A": [{"no": "1", "name": "陳佳碧"}, {"no": "2", "name": "趙恩熙"}, {"no": "3", "name": "黃女婷"}, {"no": "4", "name": "黎銥庭"}, {"no": "5", "name": "林穎瑤"}, {"no": "6", "name": "劉沄諾"}, {"no": "7", "name": "梁愷亭"}, {"no": "8", "name": "盧欣彤"}, {"no": "9", "name": "司徒永琳"}, {"no": "10", "name": "蕭希頤"}, {"no": "11", "name": "鄧穎嘉"}, {"no": "12", "name": "陳寶欣"}, {"no": "13", "name": "謝杺洳"}, {"no": "14", "name": "黃海晴"}, {"no": "15", "name": "嚴凱晴"}, {"no": "16", "name": "葉心僖"}, {"no": "17", "name": "趙婕妤"}, {"no": "18", "name": "陳熙中"}, {"no": "19", "name": "張啓俊"}, {"no": "20", "name": "張博淇"}, {"no": "21", "name": "周樂熙"}, {"no": "22", "name": "黎栢橋"}, {"no": "23", "name": "劉雄業"}, {"no": "24", "name": "李俊佑"}, {"no": "25", "name": "梁栩銘"}, {"no": "26", "name": "李焯樑"}, {"no": "27", "name": "羅超元"}, {"no": "28", "name": "施吉凱"}, {"no": "29", "name": "譚枝恆"}, {"no": "30", "name": "陶卓翹"}, {"no": "31", "name": "黃祺煒"}, {"no": "32", "name": "殷梓晉"}, {"no": "33", "name": "周子凌"}], "3B": [{"no": "1", "name": "陳佩詩"}, {"no": "2", "name": "陳詩淇"}, {"no": "3", "name": "張凱榣"}, {"no": "4", "name": "蔡塏玥"}, {"no": "5", "name": "謝雅妮"}, {"no": "6", "name": "郭梓琪"}, {"no": "7", "name": "郭芷若"}, {"no": "8", "name": "黎嘉瑩"}, {"no": "9", "name": "林儷瑤"}, {"no": "10", "name": "李巧意"}, {"no": "11", "name": "李昕嵐"}, {"no": "12", "name": "梁涴淇"}, {"no": "13", "name": "潘柔希"}, {"no": "14", "name": "蘇天悠"}, {"no": "15", "name": "蘇穎嵐"}, {"no": "16", "name": "鄧雪詠"}, {"no": "17", "name": "陳海晞"}, {"no": "18", "name": "陳俊廷"}, {"no": "19", "name": "張俊峰"}, {"no": "20", "name": "張俊軒"}, {"no": "21", "name": "張曉峯"}, {"no": "22", "name": "簡天朗"}, {"no": "23", "name": "劉其昀"}, {"no": "24", "name": "李柏僑"}, {"no": "25", "name": "林叡昇"}, {"no": "26", "name": "陸弘向"}, {"no": "27", "name": "麥家朗"}, {"no": "28", "name": "吳柏謙"}, {"no": "29", "name": "鄧灝軒"}, {"no": "30", "name": "謝旻樺"}, {"no": "31", "name": "甄子陽"}, {"no": "32", "name": "丘俊天"}, {"no": "33", "name": "游文浩"}], "3C": [{"no": "1", "name": "陳芷妍"}, {"no": "2", "name": "陳詠心"}, {"no": "3", "name": "陳育瑤"}, {"no": "4", "name": "陳南嘉"}, {"no": "5", "name": "張沁頤"}, {"no": "6", "name": "張恩琪"}, {"no": "7", "name": "顧子怡"}, {"no": "8", "name": "賈雨桐"}, {"no": "9", "name": "黎懂恩"}, {"no": "10", "name": "劉穎澄"}, {"no": "11", "name": "盧姵穎"}, {"no": "12", "name": "潘紫煊"}, {"no": "13", "name": "蘇梓炫"}, {"no": "14", "name": "孫海怡"}, {"no": "15", "name": "葉嘉霖"}, {"no": "16", "name": "馮璟宇"}, {"no": "17", "name": "江博賢"}, {"no": "18", "name": "林正鴻"}, {"no": "19", "name": "梁諾恒"}, {"no": "20", "name": "李俊彤"}, {"no": "21", "name": "李梓峰"}, {"no": "22", "name": "羅浚銘"}, {"no": "23", "name": "駱泓憬"}, {"no": "24", "name": "彭裕庭"}, {"no": "25", "name": "蘇雲意"}, {"no": "26", "name": "岑卓諾"}, {"no": "27", "name": "田峻瑋"}, {"no": "28", "name": "王子墨"}, {"no": "29", "name": "黃柏晞"}, {"no": "30", "name": "黃栢庭"}, {"no": "31", "name": "胡瑋誠"}, {"no": "32", "name": "張晋涵"}, {"no": "33", "name": "鄒坤儒"}], "4A": [{"no": "2", "name": "陳可儀"}, {"no": "3", "name": "周沅琪"}, {"no": "4", "name": "馮思婷"}, {"no": "5", "name": "洪億喜"}, {"no": "6", "name": "林雪晴"}, {"no": "7", "name": "梁梓琪"}, {"no": "8", "name": "梁樺敏"}, {"no": "9", "name": "潘慧恩"}, {"no": "10", "name": "唐家茵"}, {"no": "11", "name": "唐敏兒"}, {"no": "12", "name": "謝宛凝"}, {"no": "13", "name": "曾智盈"}, {"no": "14", "name": "陳梓軒"}, {"no": "15", "name": "陳梓灝"}, {"no": "16", "name": "鄭懿"}, {"no": "17", "name": "池明澤"}, {"no": "18", "name": "朱卓文"}, {"no": "19", "name": "馮文軒"}, {"no": "20", "name": "馮耀祖"}, {"no": "21", "name": "哈駿軒"}, {"no": "22", "name": "林源峰"}, {"no": "23", "name": "劉政豪"}, {"no": "24", "name": "劉灝瀚"}, {"no": "25", "name": "劉承軒"}, {"no": "26", "name": "吳澤同"}, {"no": "27", "name": "顏溢希"}, {"no": "28", "name": "潘浩東"}, {"no": "29", "name": "冼俊延"}, {"no": "30", "name": "蕭植陽"}, {"no": "31", "name": "胡錦豪"}, {"no": "32", "name": "胡韋迪"}, {"no": "33", "name": "張俊希"}], "4B": [{"no": "1", "name": "陳貝錡"}, {"no": "2", "name": "陳樺瑩"}, {"no": "3", "name": "周穎詩"}, {"no": "4", "name": "關沛怡"}, {"no": "5", "name": "郭詠恩"}, {"no": "7", "name": "盧嘉瑤"}, {"no": "8", "name": "巫冠誼"}, {"no": "9", "name": "孫雯"}, {"no": "10", "name": "唐家怡"}, {"no": "11", "name": "任喜兒"}, {"no": "12", "name": "袁思樺"}, {"no": "13", "name": "原詠睎"}, {"no": "14", "name": "翟傲迅"}, {"no": "15", "name": "陳樂恆"}, {"no": "16", "name": "鄭焯中"}, {"no": "17", "name": "鄭有軒"}, {"no": "18", "name": "范曉鋒"}, {"no": "19", "name": "何卓軒"}, {"no": "20", "name": "何梓龍"}, {"no": "21", "name": "郭家傑"}, {"no": "22", "name": "梁栢賢"}, {"no": "23", "name": "李耀森"}, {"no": "24", "name": "盧永逸"}, {"no": "25", "name": "馬頌睎"}, {"no": "26", "name": "馬啟航"}, {"no": "27", "name": "麥灝軒"}, {"no": "28", "name": "吳浩維"}, {"no": "29", "name": "邱敬熙"}, {"no": "30", "name": "石語萌"}, {"no": "31", "name": "鄧昊劻"}, {"no": "32", "name": "黃子穎"}, {"no": "33", "name": "胡棨茪"}], "4C": [{"no": "1", "name": "鄧穎莹"}, {"no": "2", "name": "黃詩涵"}, {"no": "3", "name": "鄺淑瑜"}, {"no": "4", "name": "李頌敏"}, {"no": "5", "name": "李詩情"}, {"no": "6", "name": "孟琬婷"}, {"no": "7", "name": "吳卓盈"}, {"no": "8", "name": "石芷清"}, {"no": "9", "name": "蕭梓翹"}, {"no": "10", "name": "蔡心怡"}, {"no": "12", "name": "趙恂樂"}, {"no": "13", "name": "區仲希"}, {"no": "14", "name": "陳榮恩"}, {"no": "15", "name": "張裕鋒"}, {"no": "16", "name": "趙熙裕"}, {"no": "17", "name": "馮敬賢"}, {"no": "18", "name": "霍永旭"}, {"no": "19", "name": "黃子睿"}, {"no": "20", "name": "郭俊希"}, {"no": "21", "name": "賴德嘉"}, {"no": "22", "name": "劉沛希"}, {"no": "23", "name": "李尚澤"}, {"no": "24", "name": "林楷竣"}, {"no": "25", "name": "毛宗尉"}, {"no": "26", "name": "莫家杰"}, {"no": "27", "name": "秦思成"}, {"no": "28", "name": "王子謙"}, {"no": "29", "name": "楊凱森"}, {"no": "30", "name": "楊庭東"}, {"no": "31", "name": "葉溢朗"}, {"no": "32", "name": "張炎汐"}], "5A": [{"no": "1", "name": "區淑媛"}, {"no": "2", "name": "周芷慧"}, {"no": "3", "name": "陳韻潔"}, {"no": "4", "name": "陳譽文"}, {"no": "5", "name": "徐佳倩"}, {"no": "6", "name": "鄺惠予"}, {"no": "7", "name": "李曉楹"}, {"no": "8", "name": "林俊希"}, {"no": "9", "name": "盧紫悠"}, {"no": "10", "name": "盧曉曼"}, {"no": "11", "name": "隋孜霖"}, {"no": "12", "name": "王阡霽"}, {"no": "13", "name": "丘巧兒"}, {"no": "14", "name": "陳賀嵐"}, {"no": "15", "name": "陳梓津"}, {"no": "16", "name": "張浩霆"}, {"no": "17", "name": "鄧子城"}, {"no": "18", "name": "何旭孝"}, {"no": "19", "name": "何梓焌"}, {"no": "20", "name": "何永杰"}, {"no": "21", "name": "黃正霖"}, {"no": "22", "name": "鄺焱華"}, {"no": "23", "name": "鄺浩堃"}, {"no": "24", "name": "雷錦鳴"}, {"no": "25", "name": "林逸朗"}, {"no": "26", "name": "陸世佑"}, {"no": "27", "name": "吳嘉晞"}, {"no": "28", "name": "曾浚軒"}, {"no": "29", "name": "黃天琛"}, {"no": "30", "name": "余俊傑"}], "5B": [{"no": "1", "name": "蔡依楠"}, {"no": "2", "name": "陳紀尤"}, {"no": "3", "name": "莊芷晴"}, {"no": "4", "name": "孔芊蔚"}, {"no": "5", "name": "黎瑜彤"}, {"no": "6", "name": "李嘉慧"}, {"no": "7", "name": "梁巧怡"}, {"no": "8", "name": "梁麗樺"}, {"no": "9", "name": "梁珮琳"}, {"no": "10", "name": "李雨芹"}, {"no": "11", "name": "莫舒堯"}, {"no": "12", "name": "毛芷瑤"}, {"no": "13", "name": "黃樂瑤"}, {"no": "14", "name": "黃雪殷"}, {"no": "15", "name": "吳姝琦"}, {"no": "16", "name": "曾鑫雅"}, {"no": "17", "name": "張煥笙"}, {"no": "18", "name": "曹樂謙"}, {"no": "19", "name": "德健安"}, {"no": "20", "name": "馮紹基"}, {"no": "21", "name": "何御正"}, {"no": "22", "name": "梁栢雄"}, {"no": "23", "name": "李子陽"}, {"no": "24", "name": "廖浩賢"}, {"no": "25", "name": "盧海峯"}, {"no": "26", "name": "麥樺軒"}, {"no": "27", "name": "吳奇峰"}, {"no": "28", "name": "潘卓龍"}, {"no": "29", "name": "王佳熙"}, {"no": "30", "name": "王灝龍"}, {"no": "31", "name": "王霆一"}, {"no": "32", "name": "余承謙"}], "5C": [{"no": "1", "name": "張天心"}, {"no": "2", "name": "陳垚穎"}, {"no": "3", "name": "黃子菏"}, {"no": "4", "name": "黃嘉怡"}, {"no": "5", "name": "馬可芝"}, {"no": "6", "name": "莫凱雯"}, {"no": "7", "name": "孫健欣"}, {"no": "8", "name": "戴伊彤"}, {"no": "9", "name": "吳迎鳳"}, {"no": "10", "name": "胡卓瑤"}, {"no": "11", "name": "楊宇晨"}, {"no": "12", "name": "葉靖"}, {"no": "13", "name": "余睆怡"}, {"no": "14", "name": "陳柏其"}, {"no": "15", "name": "張庭溱"}, {"no": "16", "name": "馮泓棟"}, {"no": "17", "name": "黃楚恒"}, {"no": "18", "name": "黃煦鈞"}, {"no": "19", "name": "賴益澤"}, {"no": "20", "name": "梁靖晞"}, {"no": "21", "name": "梁家銘"}, {"no": "22", "name": "李迪"}, {"no": "23", "name": "劉銘杰"}, {"no": "24", "name": "彭睿杰"}, {"no": "25", "name": "彭子佑"}, {"no": "26", "name": "覃睿軒"}, {"no": "27", "name": "孫沛然"}, {"no": "28", "name": "陶星潮"}, {"no": "29", "name": "鄭凱晉"}], "6A": [{"no": "1", "name": "陳霈橋"}, {"no": "2", "name": "陳怡"}, {"no": "3", "name": "張素菡"}, {"no": "4", "name": "蔡欣彤"}, {"no": "5", "name": "關梓潁"}, {"no": "6", "name": "林煜婷"}, {"no": "7", "name": "梁芷熒"}, {"no": "8", "name": "吳佩樺"}, {"no": "9", "name": "黃凱欣"}, {"no": "10", "name": "謝依樺"}, {"no": "11", "name": "楊焯然"}, {"no": "12", "name": "鄭俊謙"}, {"no": "13", "name": "招成博"}, {"no": "14", "name": "周海楠"}, {"no": "15", "name": "林晉樂"}, {"no": "16", "name": "劉家豪"}, {"no": "17", "name": "李諾言"}, {"no": "18", "name": "李嘉興"}, {"no": "19", "name": "黎杰榮"}, {"no": "20", "name": "李均杰"}, {"no": "21", "name": "梁政濤"}, {"no": "22", "name": "潘冠橋"}, {"no": "23", "name": "龎肇源"}, {"no": "24", "name": "戴政源"}, {"no": "25", "name": "温子淘"}, {"no": "26", "name": "王文昊"}, {"no": "27", "name": "楊沛霖"}], "6B": [{"no": "1", "name": "陳可萱"}, {"no": "2", "name": "鄧寶怡"}, {"no": "3", "name": "劉蘊瑤"}, {"no": "4", "name": "羅淑榆"}, {"no": "5", "name": "李頌橋"}, {"no": "6", "name": "梁琪琪"}, {"no": "7", "name": "呂佩兒"}, {"no": "8", "name": "莫可茹"}, {"no": "9", "name": "吳紫晴"}, {"no": "10", "name": "覃淑婷"}, {"no": "11", "name": "孫丁丁"}, {"no": "12", "name": "王文慧"}, {"no": "13", "name": "黃晞頤"}, {"no": "14", "name": "黃胤錚"}, {"no": "15", "name": "張圓星"}, {"no": "16", "name": "張晉軒"}, {"no": "17", "name": "蔡鎵浠"}, {"no": "18", "name": "蔡鉅濟"}, {"no": "19", "name": "馮錦佳"}, {"no": "20", "name": "關穎霖"}, {"no": "21", "name": "何卓謙"}, {"no": "22", "name": "簡銘均"}, {"no": "23", "name": "李國羽"}, {"no": "24", "name": "盧子健"}, {"no": "25", "name": "曾耀恆"}, {"no": "26", "name": "王寬程"}, {"no": "27", "name": "邱鐥瀧"}, {"no": "28", "name": "張智越"}], "6C": [{"no": "1", "name": "陳婥瑩"}, {"no": "2", "name": "陳詠琳"}, {"no": "3", "name": "陳暉"}, {"no": "4", "name": "招詠曦"}, {"no": "5", "name": "樊凱恩"}, {"no": "6", "name": "付鈺婷"}, {"no": "7", "name": "何凱兒"}, {"no": "8", "name": "何紫穎"}, {"no": "9", "name": "洪一然"}, {"no": "10", "name": "林鈫婧"}, {"no": "11", "name": "李懿雯"}, {"no": "12", "name": "林思彤"}, {"no": "14", "name": "涂心怡"}, {"no": "15", "name": "王梦鑫"}, {"no": "16", "name": "黃樂晴"}, {"no": "17", "name": "黃敏芝"}, {"no": "18", "name": "張怡霖"}, {"no": "19", "name": "鄭佳鑫"}, {"no": "20", "name": "朱婧曦"}, {"no": "21", "name": "區仲賢"}, {"no": "22", "name": "陳俊超"}, {"no": "23", "name": "朱浩然"}, {"no": "24", "name": "丁治棋"}, {"no": "25", "name": "關智滔"}, {"no": "26", "name": "蔣松旻"}, {"no": "27", "name": "李凱迪"}, {"no": "28", "name": "李鎔辰"}, {"no": "29", "name": "劉根宏"}, {"no": "30", "name": "薛禹楓"}, {"no": "31", "name": "姚澤恩"}]};
+
         const DAY_MAP = {"2026-09-02": "A", "2026-09-03": "B", "2026-09-04": "C", "2026-09-07": "D", "2026-09-08": "E", "2026-09-09": "F", "2026-09-10": "A", "2026-09-11": "B", "2026-09-14": "C", "2026-09-15": "D", "2026-09-16": "E", "2026-09-17": "F", "2026-09-18": "A", "2026-09-21": "B", "2026-09-22": "C", "2026-09-23": "D", "2026-09-24": "E", "2026-09-25": "F", "2026-09-28": "A", "2026-09-29": "B", "2026-09-30": "C", "2026-10-05": "D", "2026-10-06": "E", "2026-10-07": "F", "2026-10-08": "A", "2026-10-09": "B", "2026-10-12": "C", "2026-10-13": "D", "2026-10-14": "E", "2026-10-15": "F", "2026-10-16": "A", "2026-10-20": "B", "2026-10-21": "C", "2026-10-22": "D", "2026-10-23": "E", "2026-10-26": "F", "2026-10-27": "A", "2026-10-28": "B", "2026-10-29": "C", "2026-10-30": "D", "2026-11-02": "E", "2026-11-03": "F", "2026-11-04": "A", "2026-11-05": "B", "2026-11-06": "C", "2026-11-09": "D", "2026-11-10": "E", "2026-11-11": "F", "2026-11-12": "A", "2026-11-13": "B", "2026-11-18": "C", "2026-11-19": "D", "2026-11-20": "E", "2026-11-23": "F", "2026-11-24": "A", "2026-11-25": "B", "2026-11-26": "C", "2026-11-27": "D", "2026-11-30": "E", "2026-12-01": "F", "2026-12-02": "A", "2026-12-03": "B", "2026-12-08": "C", "2026-12-09": "D", "2026-12-10": "E", "2026-12-11": "F", "2026-12-14": "A", "2026-12-15": "B", "2026-12-16": "C", "2026-12-17": "D", "2026-12-18": "E", "2026-12-21": "F", "2026-12-22": "A", "2027-01-04": "B", "2027-01-19": "C", "2027-01-20": "D", "2027-01-21": "E", "2027-01-22": "F", "2027-01-25": "A", "2027-01-26": "B", "2027-01-27": "C", "2027-01-28": "D", "2027-01-29": "E", "2027-02-01": "F", "2027-02-02": "A", "2027-02-03": "B", "2027-02-15": "C", "2027-02-16": "D", "2027-02-17": "E", "2027-02-18": "F", "2027-02-19": "A", "2027-02-22": "B", "2027-02-23": "C", "2027-02-24": "D", "2027-02-25": "E", "2027-02-26": "F", "2027-03-01": "A", "2027-03-02": "B", "2027-03-03": "C", "2027-03-04": "D", "2027-03-05": "E", "2027-03-08": "F", "2027-03-09": "A", "2027-03-10": "B", "2027-03-11": "C", "2027-03-12": "D", "2027-03-15": "E", "2027-03-16": "F", "2027-03-17": "A", "2027-03-18": "B", "2027-03-22": "C", "2027-03-23": "D", "2027-04-06": "E", "2027-04-07": "F", "2027-04-08": "A", "2027-04-09": "B", "2027-04-12": "C", "2027-04-13": "D", "2027-04-14": "E", "2027-04-15": "F", "2027-04-16": "A", "2027-04-19": "B", "2027-04-26": "C", "2027-04-27": "D", "2027-04-28": "E", "2027-04-29": "F", "2027-04-30": "A", "2027-05-03": "B", "2027-05-04": "C", "2027-05-05": "D", "2027-05-06": "E", "2027-05-07": "F", "2027-05-10": "A", "2027-05-18": "B", "2027-05-19": "C", "2027-05-20": "D", "2027-05-24": "E", "2027-05-28": "F", "2027-05-31": "A", "2027-06-01": "B", "2027-06-02": "C", "2027-06-03": "D", "2027-06-04": "E", "2027-06-07": "F", "2027-06-08": "A"};
 
         const DEFAULT_PASSWORD = "bsc24377000";
@@ -391,12 +393,14 @@
             attendance: {},
             overrides: {},
             notified: {},
+            violations: {},
             waPhone: "",
             waApiKey: ""
         };
         let tempMarks = {};
+        let lockedKeys = {};
 
-        let SCRIPT_URL = localStorage.getItem("dutyScriptUrl") || "https://script.google.com/macros/s/AKfycbwpd3Gbr8zYA7d-YfoEgJiMMgcCUyJSzYMLrr4F7ShE5_SyVzKU2zWXvX9GAz_KZp2N0A/exec";
+        let SCRIPT_URL = localStorage.getItem("dutyScriptUrl") || "https://script.google.com/macros/s/AKfycbwf2w_Zz3yHdGdpFn08UyzsS2LxOVWusSHGAt4bGUqnLKefZP6oVmTyT95ItGQDCtwhbg/exec";
 
         function saveScriptUrl() {
             SCRIPT_URL = document.getElementById("scriptUrl").value.trim();
@@ -407,11 +411,17 @@
 
         function loadAppData() {
             document.getElementById("scriptUrl").value = SCRIPT_URL;
+            // Always load from localStorage first
+            const s = localStorage.getItem("schoolDuty2026v5");
+            if (s) {
+                try {
+                    const saved = JSON.parse(s);
+                    appData = {...appData, ...saved};
+                } catch(e) {}
+            }
+            // Then try to sync from sheet
             if (SCRIPT_URL) {
                 loadFromSheet();
-            } else {
-                const s = localStorage.getItem("schoolDuty2026v5");
-                if (s) appData = {...appData, ...JSON.parse(s)};
             }
         }
 
@@ -421,24 +431,20 @@
             fetch(SCRIPT_URL)
                 .then(r => r.json())
                 .then(data => {
-                    if (data.attendance) appData.attendance = data.attendance;
-                    if (data.overrides) appData.overrides = data.overrides;
-                    if (data.notified) appData.notified = data.notified;
+                    // Only update if sheet has data
+                    if (data.attendance && Object.keys(data.attendance).length > 0) {
+                        appData.attendance = {...appData.attendance, ...data.attendance};
+                    }
+                    if (data.overrides && Object.keys(data.overrides).length > 0) {
+                        appData.overrides = {...appData.overrides, ...data.overrides};
+                    }
+                    if (data.notified && Object.keys(data.notified).length > 0) {
+                        appData.notified = {...appData.notified, ...data.notified};
+                    }
                     document.getElementById("syncStatus").textContent = "已從 Google Sheet 載入最新紀錄";
                     refreshCurrent();
                     checkLateDuties();
-            // 只有管理員才顯示設定分頁
-            const settingsTab = document.getElementById("settingsTab");
-            if (settingsTab) {
-                if (!appData.isAdminUnlocked) {
-                    settingsTab.style.display = "none";
-                    settingsTab.style.pointerEvents = "none";
-                } else {
-                    settingsTab.style.display = "inline-block";
-                    settingsTab.style.pointerEvents = "auto";
-                    settingsTab.style.visibility = "visible";
-                }
-            }
+
                 })
                 .catch(err => {
                     document.getElementById("syncStatus").textContent = "讀取失敗，請檢查網址";
@@ -472,6 +478,7 @@
                         attendance: appData.attendance || {},
                         overrides: appData.overrides || {},
                         notified: appData.notified || {},
+                        violations: appData.violations || {},
                         teachers: teachers,
                         timeSlots: timeSlots
                     })
@@ -500,8 +507,20 @@
         }
 
         function init() {
-            const today = new Date().toISOString().split("T")[0];
-            document.getElementById("currentDate").textContent = "今日：" + today;
+            // Show settings tab for admin
+            const settingsTab = document.getElementById("settingsTab");
+            if (settingsTab) {
+                if (appData.isAdminUnlocked) {
+                    settingsTab.style.display = "inline-block";
+                    settingsTab.style.pointerEvents = "auto";
+                } else {
+                    settingsTab.style.display = "none";
+                }
+            }
+            const now = new Date();
+            const hkTime = now.toLocaleString("zh-Hant-HK", { timeZone: "Asia/Hong_Kong", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+            const today = now.toLocaleDateString("en-CA", { timeZone: "Asia/Hong_Kong" });
+            document.getElementById("currentDate").textContent = hkTime;
             document.getElementById("dayafDate").value = today;
             if (!appData.isAdminUnlocked) {
                 ["dayafDate","patrolDate","outdoorDate","satDate"].forEach(id => {
@@ -524,18 +543,7 @@
             loadExam();
             loadSpecial();
             checkLateDuties();
-            // 只有管理員才顯示設定分頁
-            const settingsTab = document.getElementById("settingsTab");
-            if (settingsTab) {
-                if (!appData.isAdminUnlocked) {
-                    settingsTab.style.display = "none";
-                    settingsTab.style.pointerEvents = "none";
-                } else {
-                    settingsTab.style.display = "inline-block";
-                    settingsTab.style.pointerEvents = "auto";
-                    settingsTab.style.visibility = "visible";
-                }
-            }
+
             setInterval(checkLateDuties, 60000);
         }
 
@@ -579,6 +587,15 @@
             }
             return "";
         }
+        function shouldLock(key, date, timeRange) {
+            if (appData.isAdminUnlocked) return false;
+            if (lockedKeys[key]) return true;
+            const rec = appData.attendance && appData.attendance[key];
+            const saved = rec && rec.savedAt;
+            const pastEnd = isPastEndTime(date, timeRange);
+            return !!(saved || pastEnd);
+        }
+
         function setTempStatus(key, status) {
             if (!appData.isAdminUnlocked && appData.attendance[key] && appData.attendance[key].savedAt) {
                 alert("此紀錄已儲存，不能再修改。如需修改請使用管理員密碼重新登入。");
@@ -588,6 +605,10 @@
             refreshCurrent();
         }
         function saveMarks() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString("zh-Hant-HK", {year:"numeric", month:"2-digit", day:"2-digit"});
+            const timeStr = now.toLocaleTimeString("zh-Hant-HK", {hour:"2-digit", minute:"2-digit"});
+            alert("已於 " + dateStr + " " + timeStr + " 儲存");
             if (!appData.isAdminUnlocked) {
                 const today = new Date().toISOString().split("T")[0];
                 const currentDate = document.getElementById("dayafDate")?.value || 
@@ -599,16 +620,24 @@
                     return;
                 }
             }
-            const now = new Date().toISOString();
+            const saveTimestamp = new Date().toISOString();
             for (const [key, status] of Object.entries(tempMarks)) {
                 if (!appData.isAdminUnlocked && appData.attendance[key] && appData.attendance[key].savedAt) {
                     continue;
                 }
-                appData.attendance[key] = { status: status, savedAt: now };
+                appData.attendance[key] = { status: status, savedAt: saveTimestamp };
+                if (!appData.isAdminUnlocked) {
+                    lockedKeys[key] = true;
+                }
             }
             tempMarks = {};
             saveAppData();
-            alert("已儲存（記錄時間：" + new Date().toLocaleTimeString("zh-Hant") + "）");
+            // Reload from storage to ensure data is fresh
+            const s = localStorage.getItem("schoolDuty2026v5");
+            if (s) {
+                const saved = JSON.parse(s);
+                appData.attendance = saved.attendance || {};
+            }
             refreshCurrent();
         }
 
@@ -619,6 +648,18 @@
             if (!document.getElementById("tab-saturday").classList.contains("hidden")) loadSaturday();
             if (!document.getElementById("tab-exam").classList.contains("hidden")) loadExam();
             if (!document.getElementById("tab-special").classList.contains("hidden")) loadSpecial();
+        }
+
+        function isPastEndTime(date, timeRange) {
+            if (!timeRange || !date) return false;
+            const parts = timeRange.split("–");
+            if (parts.length < 2) return false;
+            const endTime = parts[1].trim();
+            const now = new Date();
+            const [h, m] = endTime.split(":").map(Number);
+            const dutyEnd = new Date(date + "T" + endTime + ":00");
+            const deadline = new Date(dutyEnd.getTime() + 5 * 60 * 1000);
+            return now > deadline;
         }
 
         function isOverdue(date, startTime) {
@@ -660,6 +701,144 @@
             } else if (lateList.length) {
                 saveAppData();
             }
+        }
+
+        function setViolation(key, index, field, value) {
+            if (!appData.violations) appData.violations = {};
+            if (!Array.isArray(appData.violations[key])) appData.violations[key] = [];
+            if (!appData.violations[key][index]) appData.violations[key][index] = {type:"", detail:""};
+            appData.violations[key][index][field] = value;
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+        }
+        function toggleOtherInput(select) {
+            const container = select.parentElement;
+            let otherInput = container.querySelector(".other-input");
+            if (select.value === "其他輕微違規事項") {
+                if (!otherInput) {
+                    otherInput = document.createElement("input");
+                    otherInput.type = "text";
+                    otherInput.className = "other-input";
+                    otherInput.placeholder = "請輸入違規事項";
+                    otherInput.style.cssText = "padding:4px; border:1px solid #FFCC80; border-radius:4px; width:100%; margin-top:4px;";
+                    otherInput.onchange = function() {
+                        const key = decodeURIComponent(select.dataset.key);
+                        const idx = parseInt(select.dataset.idx);
+                        if (appData.violations && appData.violations[key] && appData.violations[key][idx]) {
+                            appData.violations[key][idx].other = this.value;
+                            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+                        }
+                    };
+                    container.appendChild(otherInput);
+                }
+                otherInput.style.display = "block";
+            } else if (otherInput) {
+                otherInput.style.display = "none";
+            }
+        }
+
+        function filterStudents(classSelect) {
+            const cls = classSelect.value;
+            const studentSelect = classSelect.parentElement.querySelector(".student-select");
+            if (!studentSelect) return;
+            studentSelect.innerHTML = '<option value="">選擇學生</option>';
+            if (cls && typeof STUDENTS !== "undefined" && STUDENTS[cls]) {
+                STUDENTS[cls].forEach(s => {
+                    const opt = document.createElement("option");
+                    opt.value = cls + " " + s.no + " " + s.name;
+                    opt.textContent = s.no + " " + s.name;
+                    studentSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function addViolationByIndex(btn) {
+            const dateEl = document.getElementById("dayafDate");
+            const dayEl = document.getElementById("daySelect");
+            if (!dateEl || !dayEl) { alert("請先選擇日期"); return; }
+            const date = dateEl.value;
+            const day = dayEl.value;
+            if (!date || !day) { alert("請先選擇日期和 Day"); return; }
+            const idx = parseInt(btn.getAttribute("data-idx"));
+            const item = DUTY_DATA.dayAF.positions[idx];
+            if (!item) { alert("找不到崗位"); return; }
+            const key = `dayaf_${date}_${day}_${item.pos}`;
+            if (!appData.violations) appData.violations = {};
+            if (!Array.isArray(appData.violations[key])) appData.violations[key] = [];
+            const newIdx = appData.violations[key].length;
+            appData.violations[key].push({type:"", detail:""});
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            
+            // Directly add to DOM instead of full refresh
+            const list = btn.closest(".duty-info").querySelector(".vlist");
+            if (list) {
+                const ek = encodeURIComponent(key);
+                const div = document.createElement("div");
+                div.style.cssText = "margin-bottom:8px; padding:6px; background:#fff; border-radius:4px;";
+                div.innerHTML = `
+                    <div style="display:flex; gap:4px; align-items:center; margin-bottom:4px;">
+                        <select onchange="filterStudents(this)" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; width:60px; font-size:13px;">
+                            <option value="">班別</option>
+                            ${Object.keys(STUDENTS).sort().map(c => `<option value="${c}">${c}</option>`).join("")}
+                        </select>
+                        <select class="student-select" onchange="setViolation(decodeURIComponent(this.dataset.key), ${newIdx}, 'detail', this.value)" data-key="${ek}" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; flex:2; min-width:120px;">
+                            <option value="">選擇學生</option>
+                        </select>
+                        <button type="button" class="btn danger small" onclick="this.parentElement.parentElement.remove(); removeViolation(decodeURIComponent(this.dataset.key), ${newIdx})" data-key="${ek}" style="padding:2px 6px;">✕</button>
+                    </div>
+                    <select onchange="setViolation(decodeURIComponent(this.dataset.key), ${newIdx}, 'type', this.value); toggleOtherInput(this)" data-key="${ek}" data-idx="${newIdx}" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; width:100%;">
+                        <option value="">選擇違規類型</option>
+                        <option value="擅自離開坐位">擅自離開坐位</option>
+                        <option value="滋擾同學或老師上課">滋擾同學或老師上課</option>
+                        <option value="違規使用iPad/電話但不即時交出">違規使用iPad/電話但不即時交出</option>
+                        <option value="無故離開/遲入課室">無故離開/遲入課室</option>
+                        <option value="在非指定區域進食">在非指定區域進食</option>
+                        <option value="蓄意弄污學園環境">蓄意弄污學園環境</option>
+                        <option value="蓄意破壞公物">蓄意破壞公物</option>
+                        <option value="戲弄同學">戲弄同學</option>
+                        <option value="校服儀容違規">校服儀容違規</option>
+                        <option value="學生屢勸後仍不聽從老師/導師指示">學生屢勸後仍不聽從老師/導師指示</option>
+                        <option value="放學後沒有清理課室桌櫃桶">放學後沒有清理課室桌櫃桶</option>
+                        <option value="粗言穢語/粗俗言行">粗言穢語/粗俗言行</option>
+                        <option value="在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人">在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人</option>
+                        <option value="未經許可擅自進入其他班別課室或特別室">未經許可擅自進入其他班別課室或特別室</option>
+                        <option value="其他輕微違規事項">其他輕微違規事項</option>
+                    </select>`;
+                const placeholder = list.querySelector(".small");
+                if (placeholder) placeholder.remove();
+                list.appendChild(div);
+                const saveBtn = list.parentElement.querySelector(".v-save-btn");
+                if (saveBtn) saveBtn.style.display = "inline-block";
+            }
+        }
+
+        window.addViolation = function(key) {
+            console.log("addViolation called with key:", key);
+            if (!appData.violations) appData.violations = {};
+            if (!Array.isArray(appData.violations[key])) {
+                appData.violations[key] = [];
+            }
+            appData.violations[key].push({type:"", detail:""});
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            loadDayAF();
+        }
+        function removeViolation(key, index) {
+            if (appData.violations && Array.isArray(appData.violations[key])) {
+                appData.violations[key].splice(index, 1);
+                localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+                loadDayAF();
+            }
+        }
+
+        function saveViolations(key) {
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            saveAppData();
+            if (appData.violations && appData.violations[key]) {
+                appData.violations[key] = [];
+            }
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            alert("違規紀錄已儲存");
+            loadDayAF();
+            loadPatrol();
         }
 
         function loadDayAF() {
@@ -716,6 +895,38 @@
                 const status = getStatus(key);
                 const savedTime = getSavedTime(key);
                 if (status === "pending" || status === "absent") missing.push(`${teacher}（${item.pos}）`);
+                const violations = (appData.violations && Array.isArray(appData.violations[key])) ? appData.violations[key] : [];
+                let violationHtml = "";
+                violations.forEach((v, idx) => {
+                    const ek = encodeURIComponent(key);
+                    violationHtml += `
+                        <div style="margin-bottom:8px; padding:6px; background:#fff; border-radius:4px;">
+                            <div style="display:flex; gap:4px; align-items:center; margin-bottom:4px;">
+                                <input type="text" value="${v.detail||''}" placeholder="學生姓名／班別" 
+                                       onchange="setViolation(decodeURIComponent(this.dataset.key), ${idx}, 'detail', this.value)" data-key="${ek}"
+                                       style="padding:4px; border:1px solid #FFCC80; border-radius:4px; flex:1;">
+                                <button type="button" class="btn danger small" onclick="removeViolation(decodeURIComponent(this.dataset.key), ${idx})" data-key="${ek}" style="padding:2px 6px;">✕</button>
+                            </div>
+                            <select onchange="setViolation(decodeURIComponent(this.dataset.key), ${idx}, 'type', this.value); toggleOtherInput(this)" data-key="${ek}" data-idx="${idx}" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; width:100%;">
+                                <option value="" ${!v.type?"selected":""}>選擇違規類型</option>
+                                <option value="擅自離開坐位" ${v.type==="擅自離開坐位"?"selected":""}>擅自離開坐位</option>
+                                <option value="滋擾同學或老師上課" ${v.type==="滋擾同學或老師上課"?"selected":""}>滋擾同學或老師上課</option>
+                                <option value="違規使用iPad/電話但不即時交出" ${v.type==="違規使用iPad/電話但不即時交出"?"selected":""}>違規使用iPad/電話但不即時交出</option>
+                                <option value="無故離開/遲入課室" ${v.type==="無故離開/遲入課室"?"selected":""}>無故離開/遲入課室</option>
+                                <option value="在非指定區域進食" ${v.type==="在非指定區域進食"?"selected":""}>在非指定區域進食</option>
+                                <option value="蓄意弄污學園環境" ${v.type==="蓄意弄污學園環境"?"selected":""}>蓄意弄污學園環境</option>
+                                <option value="蓄意破壞公物" ${v.type==="蓄意破壞公物"?"selected":""}>蓄意破壞公物</option>
+                                <option value="戲弄同學" ${v.type==="戲弄同學"?"selected":""}>戲弄同學</option>
+                                <option value="校服儀容違規" ${v.type==="校服儀容違規"?"selected":""}>校服儀容違規</option>
+                                <option value="學生屢勸後仍不聽從老師/導師指示" ${v.type==="學生屢勸後仍不聽從老師/導師指示"?"selected":""}>學生屢勸後仍不聽從老師/導師指示</option>
+                                <option value="放學後沒有清理課室桌櫃桶" ${v.type==="放學後沒有清理課室桌櫃桶"?"selected":""}>放學後沒有清理課室桌櫃桶</option>
+                                <option value="粗言穢語/粗俗言行" ${v.type==="粗言穢語/粗俗言行"?"selected":""}>粗言穢語/粗俗言行</option>
+                                <option value="在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人" ${v.type==="在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人"?"selected":""}>在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人</option>
+                                <option value="未經許可擅自進入其他班別課室或特別室" ${v.type==="未經許可擅自進入其他班別課室或特別室"?"selected":""}>未經許可擅自進入其他班別課室或特別室</option>
+                                <option value="其他輕微違規事項" ${v.type==="其他輕微違規事項"?"selected":""}>其他輕微違規事項</option>
+                            </select>
+                        </div>`;
+                });
                 html += `
                     <div class="duty-row">
                         <div class="duty-info">
@@ -725,12 +936,20 @@
                                    onchange="setOverride('dayaf','${date}','${day}','${item.pos}', this.value); loadDayAF()"
                                    placeholder="可修改老師姓名">
                             ${savedTime ? `<div class="saved-time">儲存時間：${savedTime}</div>` : ""}
+                            <div style="margin-top:8px; padding:8px; background:#FFF8F0; border-radius:6px; font-size:13px;">
+                                <div style="margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                                    <strong>違規學生紀錄</strong>
+                                    <button type="button" class="btn small" onclick="addViolationByIndex(this)" data-idx="${DUTY_DATA.dayAF.positions.indexOf(item)}" style="padding:2px 8px;">＋ 新增學生</button>
+                                </div>
+                                <div class="vlist" data-idx="${DUTY_DATA.dayAF.positions.indexOf(item)}">${violationHtml || '<div class="small" style="color:#999;">按「＋ 新增學生」開始記錄</div>'}</div>
+                                <button type="button" class="btn save small v-save-btn" onclick="saveViolations('${key}')" style="margin-top:6px;">儲存違規紀錄</button>
+                            </div>
                         </div>
                         <div class="duty-actions">
                             <span class="status ${status}">${statusText(status)}</span><br>
-                            <button class="btn success small ${tempMarks[key]==='present'?'temp-selected':''}" onclick="setTempStatus('${key}','present')">到</button>
-                            <button class="btn danger small ${tempMarks[key]==='absent'?'temp-selected':''}" onclick="setTempStatus('${key}','absent')">缺</button>
-                            <br><button class="btn save small" onclick="saveMarks()">儲存</button>
+                            <button class="btn success small ${tempMarks[key]==='present'?'temp-selected':''}" onclick="setTempStatus('${key}','present')" ${shouldLock(key, date, displayTime) ? 'disabled' : ''} style="${shouldLock(key, date, displayTime) ? 'opacity:0.4;pointer-events:none;background:#ccc' : ''}">到</button>
+                            <button class="btn danger small ${tempMarks[key]==='absent'?'temp-selected':''}" onclick="setTempStatus('${key}','absent')" ${shouldLock(key, date, displayTime) ? 'disabled' : ''} style="${shouldLock(key, date, displayTime) ? 'opacity:0.4;pointer-events:none;background:#ccc' : ''}">缺</button>
+                            <br><button class="btn save small" onclick="saveMarks()" ${shouldLock(key, date, displayTime) ? 'disabled' : ''} style="${shouldLock(key, date, displayTime) ? 'opacity:0.4;pointer-events:none;background:#ccc' : ''}">儲存</button>
                         </div>
                     </div>`;
             });
@@ -741,6 +960,57 @@
                 document.getElementById("dayafMissing").innerHTML = missing.map(m => "• " + m).join("<br>");
                 alertEl.classList.remove("hidden");
             } else alertEl.classList.add("hidden");
+        }
+
+        function addPatrolViolation(btn) {
+            const date = document.getElementById("patrolDate").value;
+            const day = document.getElementById("patrolDay").value;
+            const idx = parseInt(btn.getAttribute("data-idx"));
+            const item = DUTY_DATA.patrol.periods[idx];
+            if (!item) return;
+            const key = `patrol_${date}_${day}_${item.period}`;
+            if (!appData.violations) appData.violations = {};
+            if (!Array.isArray(appData.violations[key])) appData.violations[key] = [];
+            const newIdx = appData.violations[key].length;
+            appData.violations[key].push({type:"", detail:""});
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            
+            const list = btn.closest(".duty-info").querySelector(".vlist");
+            if (list) {
+                const ek = encodeURIComponent(key);
+                const div = document.createElement("div");
+                div.style.cssText = "margin-bottom:8px; padding:6px; background:#fff; border-radius:4px;";
+                div.innerHTML = `
+                    <div style="display:flex; gap:4px; align-items:center; margin-bottom:4px;">
+                        <select onchange="filterStudents(this)" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; width:60px; font-size:13px;">
+                            <option value="">班別</option>
+                            ${Object.keys(STUDENTS).sort().map(c => `<option value="${c}">${c}</option>`).join("")}
+                        </select>
+                        <select class="student-select" onchange="setViolation(decodeURIComponent(this.dataset.key), ${newIdx}, 'detail', this.value)" data-key="${ek}" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; flex:2; min-width:120px;">
+                            <option value="">選擇學生</option>
+                        </select>
+                        <button type="button" class="btn danger small" onclick="this.parentElement.parentElement.remove()" style="padding:2px 6px;">✕</button>
+                    </div>
+                    <select onchange="setViolation(decodeURIComponent(this.dataset.key), ${newIdx}, 'type', this.value); toggleOtherInput(this)" data-key="${ek}" data-idx="${newIdx}" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; width:100%;">
+                        <option value="">選擇違規類型</option>
+                        <option value="擅自離開坐位">擅自離開坐位</option>
+                        <option value="滋擾同學或老師上課">滋擾同學或老師上課</option>
+                        <option value="違規使用iPad/電話但不即時交出">違規使用iPad/電話但不即時交出</option>
+                        <option value="無故離開/遲入課室">無故離開/遲入課室</option>
+                        <option value="在非指定區域進食">在非指定區域進食</option>
+                        <option value="蓄意弄污學園環境">蓄意弄污學園環境</option>
+                        <option value="蓄意破壞公物">蓄意破壞公物</option>
+                        <option value="戲弄同學">戲弄同學</option>
+                        <option value="校服儀容違規">校服儀容違規</option>
+                        <option value="學生屢勸後仍不聽從老師/導師指示">學生屢勸後仍不聽從老師/導師指示</option>
+                        <option value="放學後沒有清理課室桌櫃桶">放學後沒有清理課室桌櫃桶</option>
+                        <option value="粗言穢語/粗俗言行">粗言穢語/粗俗言行</option>
+                        <option value="在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人">在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人</option>
+                        <option value="未經許可擅自進入其他班別課室或特別室">未經許可擅自進入其他班別課室或特別室</option>
+                        <option value="其他輕微違規事項">其他輕微違規事項</option>
+                    </select>`;
+                list.appendChild(div);
+            }
         }
 
         function loadPatrol() {
@@ -768,6 +1038,7 @@
                 const status = getStatus(key);
                 const savedTime = getSavedTime(key);
                 if (status === "pending" || status === "absent") missing.push(`${teacher}（${item.period}）`);
+                const pIdx = DUTY_DATA.patrol.periods.indexOf(item);
                 html += `
                     <div class="duty-row">
                         <div class="duty-info">
@@ -776,12 +1047,20 @@
                                    onchange="setOverride('patrol','${date}','${day}','${item.period}', this.value); loadPatrol()"
                                    placeholder="可修改老師姓名">
                             ${savedTime ? `<div class="saved-time">儲存時間：${savedTime}</div>` : ""}
+                            <div style="margin-top:8px; padding:8px; background:#FFF8F0; border-radius:6px; font-size:13px;">
+                                <div style="margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                                    <strong>違規學生紀錄</strong>
+                                    <button type="button" class="btn small" onclick="addPatrolViolation(this)" data-idx="${pIdx}" style="padding:2px 8px;">＋ 新增學生</button>
+                                </div>
+                                <div class="vlist"></div>
+                                <button type="button" class="btn save small" onclick="saveViolations('${key}')" style="margin-top:6px;">儲存違規紀錄</button>
+                            </div>
                         </div>
                         <div class="duty-actions">
                             <span class="status ${status}">${statusText(status)}</span><br>
-                            <button class="btn success small" onclick="setTempStatus('${key}','present')">到</button>
-                            <button class="btn danger small" onclick="setTempStatus('${key}','absent')">缺</button>
-                            <br><button class="btn save small" onclick="saveMarks()">儲存</button>
+                            <button class="btn success small" onclick="setTempStatus('${key}','present')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>到</button>
+                            <button class="btn danger small" onclick="setTempStatus('${key}','absent')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>缺</button>
+                            <br><button class="btn save small" onclick="saveMarks()" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>儲存</button>
                         </div>
                     </div>`;
             });
@@ -917,9 +1196,9 @@
                         </div>
                         <div class="duty-actions">
                             <span class="status ${status}">${statusText(status)}</span><br>
-                            <button class="btn success small" onclick="setTempStatus('${key}','present')">到</button>
-                            <button class="btn danger small" onclick="setTempStatus('${key}','absent')">缺</button>
-                            <br><button class="btn save small" onclick="saveMarks()">儲存</button>
+                            <button class="btn success small" onclick="setTempStatus('${key}','present')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>到</button>
+                            <button class="btn danger small" onclick="setTempStatus('${key}','absent')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>缺</button>
+                            <br><button class="btn save small" onclick="saveMarks()" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>儲存</button>
                         </div>
                     </div>`;
             });
@@ -947,9 +1226,9 @@
                         </div>
                         <div class="duty-actions">
                             <span class="status ${status}">${statusText(status)}</span><br>
-                            <button class="btn success small" onclick="setTempStatus('${key}','present')">到</button>
-                            <button class="btn danger small" onclick="setTempStatus('${key}','absent')">缺</button>
-                            <br><button class="btn save small" onclick="saveMarks()">儲存</button>
+                            <button class="btn success small" onclick="setTempStatus('${key}','present')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>到</button>
+                            <button class="btn danger small" onclick="setTempStatus('${key}','absent')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>缺</button>
+                            <br><button class="btn save small" onclick="saveMarks()" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>儲存</button>
                         </div>
                     </div>`;
             });
