@@ -400,7 +400,7 @@
         let tempMarks = {};
         let lockedKeys = {};
 
-        let SCRIPT_URL = localStorage.getItem("dutyScriptUrl") || "https://script.google.com/macros/s/AKfycbwf2w_Zz3yHdGdpFn08UyzsS2LxOVWusSHGAt4bGUqnLKefZP6oVmTyT95ItGQDCtwhbg/exec";
+        let SCRIPT_URL = localStorage.getItem("dutyScriptUrl") || "";
 
         function saveScriptUrl() {
             SCRIPT_URL = document.getElementById("scriptUrl").value.trim();
@@ -470,6 +470,8 @@
                     });
                 }
                 
+                console.log("Saving to:", SCRIPT_URL);
+                console.log("Data:", JSON.stringify({attendance: appData.attendance}).substring(0, 200));
                 fetch(SCRIPT_URL, {
                     method: "POST",
                     mode: "no-cors",
@@ -610,11 +612,16 @@
             const timeStr = now.toLocaleTimeString("zh-Hant-HK", {hour:"2-digit", minute:"2-digit"});
             alert("已於 " + dateStr + " " + timeStr + " 儲存");
             if (!appData.isAdminUnlocked) {
-                const today = new Date().toISOString().split("T")[0];
-                const currentDate = document.getElementById("dayafDate")?.value || 
-                                    document.getElementById("patrolDate")?.value ||
-                                    document.getElementById("outdoorDate")?.value ||
-                                    document.getElementById("satDate")?.value || today;
+                const today = new Date().toLocaleDateString("en-CA", {timeZone: "Asia/Hong_Kong"});
+                const dateIds = ["dayafDate", "patrolDate", "outdoorDate", "satDate", "examDate", "specialDate"];
+                let currentDate = today;
+                for (const id of dateIds) {
+                    const el = document.getElementById(id);
+                    if (el && el.value && !document.getElementById("tab-" + id.replace("Date",""))?.classList.contains("hidden")) {
+                        currentDate = el.value;
+                        break;
+                    }
+                }
                 if (currentDate !== today) {
                     alert("只允許記錄今天的出勤。如需修改其他日期，請使用管理員密碼重新登入。");
                     return;
