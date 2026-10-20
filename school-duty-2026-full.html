@@ -400,7 +400,8 @@
         let tempMarks = {};
         let lockedKeys = {};
 
-        let SCRIPT_URL = localStorage.getItem("dutyScriptUrl") || "https://script.google.com/macros/s/AKfycbzQbuo2YMqO2jIrliRJYrS1JqdrxvqwZMzYuq0iZxyf6e79xII6Vbb6RqlXDptBhzz8/exec";
+        localStorage.removeItem("dutyScriptUrl");
+        let SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybhKHkJXnJPk6D642wh1UNvWsQ7w6I1Bbd70l_G8ZEweeuWQmikDl42vnMeEdrLdj5/exec";
 
         function saveScriptUrl() {
             SCRIPT_URL = document.getElementById("scriptUrl").value.trim();
@@ -428,8 +429,11 @@
         function loadFromSheet() {
             if (!SCRIPT_URL) return;
             document.getElementById("syncStatus").textContent = "正在從 Google Sheet 讀取...";
-            fetch(SCRIPT_URL)
-                .then(r => r.json())
+            fetch(SCRIPT_URL + "?action=load", {redirect: "follow"})
+                .then(r => {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
+                    return r.json();
+                })
                 .then(data => {
                     // Only update if sheet has data
                     if (data.attendance && Object.keys(data.attendance).length > 0) {
