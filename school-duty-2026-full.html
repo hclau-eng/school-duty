@@ -401,7 +401,7 @@
         let lockedKeys = {};
 
         localStorage.removeItem("dutyScriptUrl");
-        let SCRIPT_URL = "https://script.google.com/macros/s/AKfycby66pn-jmcENBIU8MFJOnipRPBp-i1AM3MfbqXtA5Oe61lVks2RwpzPfP-mEGM20Clx/exec";
+        let SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWNXsgytKacN11WE9KOOcPXKVqhRwGGONPUgOQCAa52CN6qZabgKOoLa5gHJW-b59f/exec";
 
         function saveScriptUrl() {
             SCRIPT_URL = document.getElementById("scriptUrl").value.trim();
@@ -436,8 +436,8 @@
                 })
                 .then(data => {
                     // Only update if sheet has data
-                    if (data.attendance && Object.keys(data.attendance).length > 0) {
-                        appData.attendance = {...appData.attendance, ...data.attendance};
+                    if (data.attendance) {
+                        appData.attendance = data.attendance;
                     }
                     if (data.overrides && Object.keys(data.overrides).length > 0) {
                         appData.overrides = {...appData.overrides, ...data.overrides};
@@ -1335,7 +1335,15 @@
                 appData.attendance = {};
                 appData.notified = {};
                 tempMarks = {};
-                saveAppData();
+                localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+                // Send clear command to sheet
+                if (SCRIPT_URL) {
+                    fetch(SCRIPT_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        body: JSON.stringify({action: "clear"})
+                    }).catch(() => {});
+                }
                 alert("出勤記錄已清除");
                 location.reload();
             }
