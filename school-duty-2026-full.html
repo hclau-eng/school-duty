@@ -673,6 +673,16 @@
             return now > deadline;
         }
 
+        function isBeforeStartTime(date, timeRange) {
+            if (!timeRange || !date) return false;
+            const parts = timeRange.split("–");
+            if (parts.length < 2) return false;
+            const startTime = parts[0].trim();
+            const now = new Date();
+            const dutyStart = new Date(date + "T" + startTime + ":00");
+            return now < dutyStart;
+        }
+
         function isOverdue(date, startTime) {
             if (!startTime) return false;
             const now = new Date();
@@ -1051,7 +1061,7 @@
                 if (status === "pending" || status === "absent") missing.push(`${teacher}（${item.period}）`);
                 const pIdx = DUTY_DATA.patrol.periods.indexOf(item);
                 const patrolTime = item.time || "08:00–08:30";
-                const pastEnd = !appData.isAdminUnlocked && isPastEndTime(date, patrolTime);
+                const pastEnd = !appData.isAdminUnlocked && isPastEndTime(date, patrolTime) && !isBeforeStartTime(date, patrolTime);
                 const grayStyle = pastEnd ? 'opacity:0.5;pointer-events:none;' : '';
                 html += `
                     <div class="duty-row" style="${grayStyle}">
