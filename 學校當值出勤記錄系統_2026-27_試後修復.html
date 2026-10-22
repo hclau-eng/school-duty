@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>學校當值出勤記錄系統 2026/27（試後修復 2026-10-22）</title>
+    <style>
+        :root {
+            --orange: #FF9F1C;
+            --dark: #3D2B1F;
+            --black: #1A1A1A;
+            --light-orange: #FFE8C7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+            background: #FFF8F0;
+            color: var(--dark);
+            padding: 12px;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--orange), #E68900);
+            color: white;
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header img { height: 110px; margin-bottom: 10px; background: white; padding: 6px; border-radius: 10px; }
+        .header h1 { font-size: 1.3rem; margin-bottom: 4px; }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .tab {
+            flex: 1 1 30%;
+            padding: 11px 6px;
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            color: var(--dark);
+        }
+        .tab.active { background: var(--orange); color: white; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #FFE0B2;
+        }
+        .card h3 { margin-bottom: 12px; color: var(--dark); }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: var(--orange);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 6px 0;
+        }
+        .btn.success { background: #C8E6C9; color: var(--black); }
+        .btn.danger { background: #FFCDD2; color: var(--black); }
+        .btn.warning { background: #FF6F00; color: white; }
+        .btn.secondary { background: var(--dark); color: white; }
+        .btn.small { padding: 6px 12px; font-size: 0.85rem; width: auto; display: inline-block; margin: 2px; }
+        .btn.save { background: var(--orange); color: white; }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            margin: 6px 0;
+            border: 1px solid #FFCC80;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .duty-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid #FFE0B2;
+            gap: 10px;
+        }
+        .duty-info { flex: 1; }
+        .duty-actions { text-align: right; min-width: 160px; }
+        .status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+        .status.pending { background: #FFF3E0; color: #E65100; }
+        .status.present { background: #E8F5E9; color: #2E7D32; }
+        .status.absent { background: #FFEBEE; color: #C62828; }
+        .temp-selected { outline: 2px solid var(--orange); }
+        .alert {
+            background: #FFEBEE;
+            border-left: 5px solid #C62828;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+        }
+        .hidden { display: none; }
+        .small { font-size: 0.8rem; color: #666; }
+        .edit-input { width: 100%; padding: 6px; font-size: 0.9rem; margin: 4px 0; }
+        .password-box { background: white; padding: 24px; border-radius: 14px; text-align: center; border: 1px solid #FFE0B2; }
+        footer { text-align: center; font-size: 0.75rem; color: #999; margin-top: 24px; }
+        .saved-time { font-size: 0.75rem; color: #666; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACjAfQDASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAYHBAUIAwIB/8QAWBAAAQMEAAQDAwkEBgYECQ0AAQIDBAAFBhEHEiExE0FRFCJhCBUyVFVxgZKTI0KRoRZScrHB0RckM0Nigid1s9IYJSY3c4OUsvA0NThERVdYdHaVosLh/8QAGwEBAAMBAQEBAAAAAAAAAAAAAAECAwQFBgf/xAA2EQABAwIEAwUHBAIDAQAAAAABAAIRAwQFEiExQVGRBhNhodEiUnGxwdLwFCMygQfhFULxM//aAAwDAQACEQMRAD8A7LpSlESla7Ib5a8ftyp92lojMJISCdlS1HslKR1Uo+QAJqLAZXlg8V5x/E7GrshJHzhIT6qV1DAPoNq+KaglXawkSdAt3kOX2GxviJLll6csfs4MVtT8hf3No2fxOh8a1Yumd3jra7DCsUc9nru74rxHqGWjofiv8K3Vgxu0Y7DcascBiO4sErcVtTjqvVxZ2pR35kmq5czzLXMwtUVlq1sQJyxES474haffbPO4G1FKVIJRzJ94H3kduuzUmN1rTYHTkG3NSiXjk1MZUrKOIF08FP0/Z1tQGB+KRzfxXWLZMN4c39hcuKyu9tpWW1PyJr76VKHfSlqIUOvcbFe3G2A/deG9wdgrSoxke1bDyk7QgFRKeXezrqN9N6JqA/JmZXHvVxYbLxjJgNlC3Cp3n2s9nD2AAHujp13oVB0dELRocaReHQRy0Uzu2N8JrRcUW6fjlhafXGckgLYb+gjW9767O+g89H0rKtOBcObta41ztlhitsSGkuNrjOLaUARsdUKGjUY4u4XfMhzU3CGzHLYs7zDSywFpAJSF8+0nmXpRKAOxSOo61LOG8Odi3CSDHuEdpMiDBKyhho8ywElQ5kgA8+tA+p3QbxCOkUw4PMnxWO3j1nZkLjWPN71bH23S14QufjpC0gEp5H+fegobA7brN8PiJaOqJFmyVhPXldQYUgj4KTzNk/gmqUwe0y5qpGPXqRaIZM6PLULnEUZbpeeHuslSipJ9wjY2DzdT510Bm96mWLHn7hb7em4SW9cscuFJUPMjQJOh10B23RpkSpqsLHBu88/Va+DntqEpEG/xpmOTlnlS1ckBDbh9EPAltX4K38KliVBSQoEEHqCPOq54WZh/T+2XK35Dao4ebcPMwWeZhbR0OX3tgqSraSDo9jobrPXil0x0l/B7gGmEklVnnLUuKv4Nq6qZP3bT8KkExKxfTAdlOh8lOKVHMXy2HeJTlskx37VeWE8z9ulaDgH9ZBHRxH/EnY9dVI6uDKxc0tMFKUpRQlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJWgzDJWbC0xHZjOXC7TFFEGAyfffUO5J/dQO6lnoB8dCvXMsgax20iUWHJUp91MeHFb+lIfX9BA9PMknsATWFheOPW9T15vb6JuQzQPapCR7jSe4YaB+i2n+Z6nqagngFo1oAzOXhjeLOi5JyDKZLVyvpH7IAfsIKT+4wk9vis+8r4DpUK+U0vKY1nhybRJcFoIWi4soA6jRUFE7B0AFeg+O9CoFxiXlZ4juOldxU7CkKVFWlCmmfZ0BLgWlQ6bTzELVr3QkHRJq4IeUNPYCmTn9ubjSXZC4whJZK1ynEL93wmupUSR01vsFb1WcgyF15HUy2pv4ei0Xyf7zNZjysduftk53xEymbglLrrTgdZSsha1jaFE7UEq8lDXTVZOfwMTcyhx3IcikOPLWHY1sgJUuS24G0IStIb2sKHKSDoD3uvas6xY1fLjbmorviYnYUoSlFvhO/wCvPpCQkeO+PonQA5UHflzVMsfx6yY/HLFntseGlXVakJ99w+qlH3lH4kmpAJELN9RrXlw38PX0UXtlyyP5pjWvHMGcjW9hkMtLvU1LPuJGhtCedZ6f1tVmphcQ30AO3vHbaB0CI1uce0P7S3E/3VL6xbncYltYD0x3w0E8oOidn8KrVqU6LDUquho3JMALJrnPdlY3U/2o0bBmx6nPkg+ibM1r+ajX6LXnzJ5mcttMrX7sizlO/wAUOis05jZAdeI8fj4RrY2q82+6KUiG/wA6kjaklJBA/GuC3xnDrmoKdGu1zjwDhP8AWq3qW9zTbmeyB8P9KKyF5mxKamXPD7Be3GfoPwZXI+j4pS8np+C6judP4vl64ke9yJ2L3dgkR0XeMpDK9ghSN78NW990r5ug1VuV4zYkabGXFmR2ZLDg0tp1AWhQ9CD0NemWrFtaDMdFHuHVgk47YHIUqZFlqdkrfQuM14bYSrWgBs+nfZ3vvVV5BnGWwsvltOzXYDzL3jPWd8thDrCVI8FmO6kKJfdBJUk/dodDVjPYbLsqzJwa5m16O1WyTzOwHfgE72196CB8DXni9wsUq6LtF3sSLPkHtJnqiydLDzutF9hw9HAB02NFI6ECqkHbZaMcJLyMy3eRY9b8mtzBnsPRZbenI0hpfJIiOa7oWOxHYjqD57FavH7/AHK2XZrGsu8P2x3Yt9ybTys3AD90j9x4DqUdj3T6CE/KAzm92dBstne+blLKQ46fdfeSdEFhW9a37pOioE9gCCd1wymyeIvDt2PldsWpkOeG1L6oL5SejqOvMlaFDXN6jY86ZhmgJ3ThSzO2+Ss4UqH4ddbjCu68PyN4yLgwyXoU7WhPjggcx12cSSAoeewR36TCrgyuZzcphKUpUqqUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiKv+I8k5OpeEWRlL9yKkPSJp3yWnR5kOkjr4vTaUA7Pc6HfacPMgmXBqVZL8ENZFalBuahI0l5J+hIQP6iwN/A7HlWot+N5Hg7EhWMvMXq3OOrkPQp55JRUo7UpMgD31f+kHw5q+r2zIyKzWbiFiTKk3hiOHmWHCEmXHXoriuHts90nyUB6mqazK6iGluUbc/HxWx4oP2b5uiQJ9rF5uEl8fNtvSdLedA6nf7qACedR6cpIO96PtieLORJpv1/kIuWQOo5VPhOmoqD/umEn6CB5nuruaohErjI5xqiX421iPMmjwmrS++hYYg83XnCd+Gnpsr6Eq7b7V1AneuvejTmMpVaaTQ0Hf8/Oa+X3W2GVPPLS22kbUpR0BULvmaKKlM2pAAHTxljqfuH+db3L7U9dbb4bDqkuNnmSjfur+B/wqsHULacU24kpWk6UkjqDX5v24x/ErGoKFAZGOH8hueYB4R1XsYNY29dpe/Ujhy9VZWEXV25WxYkuFyQyvSlHuQeoP94/CmfMeNjjqwNlpaV/z1/jUKxW7izz1PLSpbS0FK0p7n0rPvOXyZ8V2K3EaaZcSUnmJUrVctDtXZV8AdbXjz3pa5uxJOmhnpud5Wj8MrMvhUpD2ZB9QozU54YsaYmSSPpKSgH7hs/3ioNW6seRzrSx7Ow2ytrmKiFJ67PxFfF9l7+2w/EmXNzOVs7CdSI+q9jEqFSvbmnT3KsO/zRbrRIlbHMlOkfFR6CoBaMqukFYDzhlM76pcPX8DX7kuSLvENljwPA5VFSwFbCj5f41oK93tN2sqV79lTD6pDWDQiRJOpkHfgII4Liw7C2soFtdupKtuy3eHdo/ixl+8Pptq+kn768cox62ZHb/Y7kypXKoOMvNq5HWHB2W2sdUqHqK1OC2FyGkXKVzIecTpDfblSfM/H4VLK/VMCubu6sWVbxmV54eHAxwnl/4vmrxlKjXLaLpAVWN2e3O5Gix5xDYdvLoSbXfmkBtc1LfUJKh9B5I+knsodR02BO7rNs2I4u9MdS1CtsBrYQ2nQA8kpSO5JOgPMmqV+U1/pEuOQWqx2VtiJaFuIeiSg8ltT0tPVKCtXRCgfojY5vU9qluFQcxzCTa5fEG0fNjNkCVJiKWlQnTB2kKAJHIkaKR/WJPkK9QHUgBS9ksa9x05fn4F52Gfe7Df15nnEFtmNem0NNvI2TZkb/ZsO+QSrYKljsvoemjVsIUlaQpJBBGwQe9QWRc8jy5c+3WKNBt9oafdhv3CcgPreUglDgbY7EbBG1nXwNSPDLCzjOORLKxLly2oySlLslfMsje9egA7ADsNCpasasESdDyW4pSlXWCrD5ROZ3XFcWgxcckBq/Xaa3GhaQFnW/eIBBHmkf8ANUH4ncbVQcINvx+ReI+RxnGmXpci28rS1JOnDtQ5epB10rM4zW+VC49cPb2/OEtqXPTFZhus/s4yQU7UDvqolZOz20PSoHxVzvMs84cX2a9Es8XG4d3RF5ElZk86Ve6fQjqN9qwc4yV6dCk0tZpKlS+PCP8ASRZ1B27jHhbD7dG+bv2rkjSvfSPpFP0eoOulXbgWYWPN7ELzYX3HYwcU0sONlC0LGtpIPwIP41zqr/SUeOePDeOC/mxaiH9p7P4HKv6fnz638O1XTwGwi54Jh8i23eVGkTJU5yW57PvkRzBI5QSBv6O/xqzCSVnc06bWAjdWDVF8e+KeQ2O0zYVisd/tMmNNQ0m7ORUGK4nfUJKt75vLpV6VzV8pW13C22OQi+cR508TpXi26xphN7UQraRzD3uVO+/n99WqEgaLK0a11QBylNt4pX7JeIFisFkiLtsZiIqZkPt8ceKyhP7vfSSQAR/bHpWLwY4w26bHvs3NcwgRy5cVi3RX1JQWmB1GtDZB3rZ9Kp3Ck3mbabwzimRX2ZldxYPznbEW5OnEElKuZ5R2NBXw6mtgzIsR+Trcre7jVuYyWHc0WlLpaBkKWpXOVFR6hXRaenpWQed13Ot6cZY5Dx+K62x2+2jIraLjZLjHuEMrKA8wrmTzDuN/CtkRsarR4HYo2N4jbLPGjNMCPGbS4EJCeZzlHMo67knfWt2obSQd9R5VuNl5LoDjGypjAc8vFi4k5Dg/EO8IWprcu1zn0IaS4wASRsAD6PX70qFenFDjTibWC3VeI5hBXfUtj2RLaSpRVzDegpOj033qK3cZRCvuUcM8kfdugvsZf9HbrNTzcpV0DSnNHlHl8FD/AIq9OKeNW/Cvkzx7XPtVrRfFJYiKfaZSpanS5zKIXrZ6A9ayzGCvQ7umXtJ3MbbfFTjDOM2CO4vaResxt6bquI17WFgpIeKRzb0nQ67+FWfHdbfZQ80tLja0hSFpOwoHqCD5iucMTgMcTeCd6xu0Ypa7Ze7UI8BL7oRzOOI5StZWEbSTyq9e9Xzgtuk2fC7LaZvIZMOCyw7yK2nmSgA6PmNirsJK57imxm287LburQ22pxxSUISCVKUdAAeZNU5d8i4lLuMr5sy/ho3CLqvZvFkKLgb37vN72t61urduaIzluktzEeJGW0pLyOUnmQQeYaHU9N9q5OjY3guR8XPCkWi3YZitoAK2J7nsz9wVvY2lxXMAf5J+JqHkiFNqxpknh4SpIxxB4qzc7lYkMuwiI7HjiQqbygxlA8vupUd7V73b4GpnjTubov0KXkHF/FZMFt0KfhxWmU+Mn+rzbBFVvabFwrk/KDu9ufbsKsWRbErjj2oCP42m98qgrXN1V0361i2LFcRxbig7bJNjh5pjc5XixJcAmS/A0ey0tEnQ6A9Oo0R5iswSutzGEQBGk7BdZpOx0rFvFygWe2vXK6S2YcNgczr7yuVCBvWyfLqRWQwpKmkqR9EgEdNdK1eaMxnsSuyJkdmQyIji1NvIC0K5UlQ2D0PUA1uV5bQC4AqoZPF2AOOsWG1mNv8A6IG2lTqgtvwfH0rW163vt03U8yfiZhcLH3JDWWWtt2TDddgLDwPikcyQU+R94a+8VySmW48/HvYt9sEv+jr0rkEFrwVLS8tPMW9cu+UenlVvcUV25GN8N2bdZ7OFXeKrx9wGlab8JK1BGx7nvKUemutYh5gr06lqzM0fmilnA3ixaLlhVtby7LYKsiffW2pp1SUOK2shA5UgDqNaq5a5J+T21D+f8JhzbZbZEa5MznOd2I2p3x2VkpUFkcw0AOm662Har0ySNVy3lNrKns8VqMxyK14pjsq+3iQGIkZO1f1lnySkeaiegFVBw6zy7SprucZ9kiMfsFxcU3ZLS4APFSOnOenMoD+ZJPbVTjjzbsQn8PZTmavSGbbEWl9KmHOVwuDYSlPkSdka+Nc+8N41tsVysWc57Gu79tmSjGx2M8544YAI5XHCojSQD7uh1IJ10FQ9xDlpb02upE8fzZXevHeMTy1PRuJNoQw4oqaSbInaUnqAdn01WmwLKs8hcb5WAZXeIN4ZTbzKQ+xEDJB0kjt95BB3Wzncao4yW62OyYZkl+ctT5YkvQWUqQFgkHz3rYI699VHeHzGR5J8oiXnErE7tY7YLX7P/wCMG+RRVpIAHrvR7UJEiEDXZXd4ABHgr5rFu1xhWq3vXC4ymosRhBW686rlShI8yayqi3EvD4mY41ItrzcdckJJiqkhSmm3PJSkAgK18a0O2i4mAFwDtlV7fEHPc1mXe94fNtePYdbElIuV0jFfjlP0lDzA/uHfrX1PvvGO24qjMrdf8Zy20NftHWYMRSVONA6UUn4aO9dR8a2LWA8W2bD8xM5vjbVs8Ax/ZkWVIQGyNFOtehquLs7l/BeyIxq18RLXLkrdKo9oYtvjvFS+/wBLfID6Hv5CsSSN16LWscYZH+vjC6I4c5rZM6x1q82Z8FJ919hRHiML80KH9x7GpLVR/J5wu52m2SciyezwLde57hWExW/BUlogHTiEnk3vZ1rpVuVq0kjVcNZrWvIbssC9Xm1WWMJN3uUSAyTyhyQ8ltJPoCT1NV9xY4l2KHw8vMvGcutRvDbAMQMyG3F83MOyTvfTflUc+UTAiXbihw0tVyZTJgyZ7iHmFk8qwSjYNZPHHhxglm4UZBc7Xi1siTY8YKaeaa0pB50jYP41VxOsLelTpgsLpk+qkXDbiVjsrArLJyDLrSLq7EQqWHZLaF+JrrtI1o/DVTqy3i1XqKZVouMSewDylyO6lxIPoSD0NVZwh4aYFdeGOO3G44pa5UuRBbceecZ2paiOpJ9a03ybYka18T+JNpgNiPBjTkJZYSfdQAtwDX4dKBxESoqU6ZzlsyPVX1VS/KB4lXbBpNkttnbgtv3RS+eXLbW4hhKeUb5EdSfe+PbtVtVzf8pe4GZxYxO22tV3VPtrS5D5tcfxZDKFkaUhPYnST39amoYaq2rA+pBGi+pHEPPI1jtM6xZKzll1mzHAbezZFtIW0ka0CQFJ0oH79/CvyRxIyhGJ265PcRoFuuTzLqpEN/HlqIdSejYKR7oAIGz33uo3mT18yK1WuzP2jOHkQX1v/O8mxKNwBV+4jlISlPbz619W2TfY+FRLAzac7sphtOtn5psZCJxX++9z7IV5Egnoaykr0O7ZA0Hl6fRXvwIyq5Znw0t99u6WhNcU426Wk8qVFKyObXlsapUC+TJl9hs/C1m0XSWqJNhzH232XG1ApVzc2u3ooUrVrhAledWouFR2UaK96qXDcinR8eTheNsIl3+HLlRnFO78CA0l9YS68R/w65UDqr4DrVtVjQ7fBhLkLiRGWFSXS8+ptASXFnupWu5+NWIlZseGggiVqsRxuHj0V5fjOTLhKV4k6e//ALWSv1J8kjsEjokdqj90y+Um888IpMRo8vIezvqf8qkGdTHYliWlkK5nj4ZUB9EeZ/w/Gqyr8x7ddori0rMtLVxaRDiR5D6nnovocGsWV2urVRM6BW5Z7tDukP2hhwDlH7RCjoo+/wDzqv8AM58GfdS5CaA5RyrdH+8Prr/GtM0860FhtxaAtPKrlOtj0NSvCMeTK5blNRzMg/smz2WfU/CvHq43fdqqdPDadMB27ncNOPh48TsOS6W2dHDHOuHO04D6eKwLDi865pS85/q0c9lqHVX3CphAxazxUAqj+0LH7zp3/LtW8AAGh0FD2r77Cex+G4cwSwPfzcJ6DYfPxXiXWLXFwd8o5BROdkmF25Utl1yKFxEqLzbcUrUnlUlCtaT1IKkggbI3XpaFY5kpnNNWl1hyE/4D6XoxYWlRQlY/ilST+NQbLMPvrmRLbD8Zxm8SHmgErdWpttbzTilKQTyJCUNEEp1skDrupHwgbitPZUzDebeZbvHJztslpJUmOyFAJJJGlbHfyr232VtVGR9JpHIgLIuLGZ2PM/FZF4wnSS7a3iSOvhOH+4/51FoynbXdELkRQXGF7U06O9W/WnyaxsXeKegRJQP2bn+B+FfEY72HpEfqcNGSo3XLwMcp2Pl8F6NljLv/AJ3GrTx4/nmvWDfIEq1G4+MltpH+0Cz1QfSoddsvmvXFDkIlmO0rYQf95/a/yqOyG3ozzkZ1KkLQrS0n1FeVfH4r21xK7pMoj9st/kRoSR8h4c+i9a1we3pOL/5A7TwH5xVqLateU46pmZFblQpSOV5lwbHxHwIPY/cajEW6T8DfRbcjlOTMfWeSDd3Ttcc/usyT/JLvn2Vo9T6cNZL6ZD8UoWY6084Vy+6lQ+PxH91TWZGjzYjsSWw2/HeQUONuJCkrSehBB7iv1ns9iZxTD6dy4Q7Y/EfQ7r5q9oi1rupbtUW4PoWOHdrkrTpcwOzFf+udU5/coVLq8oUaPCiMxIjKGY7KA202gaShIGgAPQCvWvbAgLhe7M4lKUpUqqpbj/8A+c/hX/1yf/eaqEfKR4eYhjVrjKsLU1q8326pS1GElSmjskqIb+8pA9N1dXELBVZVlGK3oXIRRYJvtRa8Hn8fqk8u9jl+j36961TXDKXcOKLWc5RfU3Qw0kW6C3G8NqMd+6eqjsjv8T18gKyc0mdF30q7WBpzbA6c9VT9+4e4nZuOtnx24XCdFtK7MqTJfeuKkqQsc4/2h+inYHTtU8+ShJUtjMYDFykT7bDu5RBW68XP2ejogn1ABqYZHw2i33ihGy+4SWn4bdsXAetzrHMl5KubZKt9ve7a8qleOY9Y8chqh2G1xbdHUsrU3HbCQpXqfU0ayDKirch9PLMmAtpXOedWjJYWVZBl0Xh3MlS4rT4jXmde0LDCEpVyvNM6HKUjqkeX310ZUO4nYhdsugIg23LJlhZU241KQyylxMhCxrlIOiPPqD5mrPEhYW9QMdrx+P0VS/JogZvHsdvutus+PotdzfLtxucmQ4ubJSFqB6dgRo6B6efnUIYXikr5Uit3Eqx928eOlWv2LksJ2BvsR4h1v4/Gr7mcN57PDCFgWO5Q7aIjLRakSjG8R55KiSoAhSQjZJ3rfTpWPeuC+LTeGbGFxUKh+yq8aPOCQp1L/wC84rtvm7EdOmvQVTIYAXWLinmc4nfTTlzVn0rSYRa7tZcdjWy8Xn55kR08glljwlrQPo8w5jsj1863S+bkPIQFa6bHStl5xEGAqb4gXS4ZNx3xnCrPOlR4tqSbjdzHdUgEdCltWu46J6H+vWnzqR/pT43WnDrefGsWNO+2XV1J2hToI9zfn5J/FXpUos3Cy7WmLkkqHl5GQZA/zSbsqDtbTXX9m2nn907PffTp06CpPwswK04BjotduKn5DivEly3B+0kOf1j6D0HlWWUnddne02CWmSBA+pVffJX/APlef+X/AJQOf3qq76pxrg3frTe7tOxHiNcLHGuclUl2MIaXdLJJ7lQ33Pl2q08chS7bY4kGdcXrnKZbCXpboAU8rzUQOg+6rMkCCsrgsc7O07rYVyLjUZqbnucvzOGUnOVfO7iQ6l0D2b31+6d+vT+FddHtVPf6I8lteTXq7YhxCkWRi7yTJejmEl7SySe5PqTrp2qHgmFe2qNYHAmJ+P0UO+bLd/8AhnmfrprT2xhmHx3wYw+HsnBy466lbS3QRJHKevT07H7xVpf0C4q//fC9/wDtLf8AnXzZOE99Oe2rLMtzqRfnrUFeyteyJZAJB7kHt13269KrlPL5LoFZgBl3A+99VbVRLjJck2jhZks5SuXltzqEn/iWnkH81CpaOlYd6tVuvVudtt2hMTYbuvEYeQFIVo7GwfiBWp2XnMIDgSuSMextcnJbJj6W1F2XgTpSkDqVuIcWB/Eitjj6rleL7hthusCXClYxjU12WzIaKFJPKtKDo+RHh6++r1HDttvi3CzmPPQyxDtvsDcBLGgEgEAhW+gAPbXlUiuOM2mQ7c5zMGMxc7hEVFemhoFwoKdAE9yB06fCshTK9B122f66Fcv4E580Yjwpyc+61GyGVEeX6IeUB/gquu6gHD3hla8ewCLiV6Ea/MxpKpKFvRwEhZOwQkk6I333U/A0NCrsaQFzXNVtR2niqt+VEm1I4TSpV1twuCI8plTTReU175Vy75k9eyjVAohYqlt+HKxl0pbyGNa1KXdHSplCkqPOk9gemvwrp3jBhLuf4siwpuQt7ftbb7i/C8TnSjfu62NbJ7/CoZkHAxFzlX95nIjFF1uEaeykReb2ZbQUP6w5thR9NVR7STIXRbV2Mp5XH5+Cw/k0sCNnXE2Mlbi0s3gNhS1bUQFujZPmfjV5VTkjhBkcLKbxesT4hSrGm7vePKZTDDgLnUk7Ku2yoj7/ADrb4zg3EC336JNu/FGbdILK+Z2H7ElsPDXRJVs6G9VZsgRCxrBlR2cO+fJWZUX4q5YjCMFuOSFlEhcZKQ0ytfKHFqUEhO/x/lUoHaoPxZwFPEKDbrdKu70GBFkiQ+y02Fe0EdACSegA5v41d0xosKWXOM+yhMfPchyXiPYcKmtItUG82NM+QYji0SGlqbUvlS5voOg8ga1vybrVaW7plSZNgjt5Za5q2w++XFqWjqAoKcJI2oHZHXqKmGecKJF7zmDmGP5TIx25RIwjBTcZLqeUbA0CRroogjqK+W8B4kpdSpfF+YpPMOYJtDIJHmN7rODMldfeU8kNMSPH0Ww4JcRHs/tdzVcIDNtudtlmPIitrKuUa6K69e4UPwqwqgGPcM4tg4lXLM7XdpTIuaSJcAtpLThOjzb7g8w5vxPrU/q7ZjVctbIXSzZVlxowTIsovONX7FrjAiXKxyFOoExKi2rfKQegPmnt8ahHGGLxlb4aXxeR3PE3bSI49pREZcDpTzJ+iSNb3quhKj/EbHDl2E3TGxL9kM9rw/G5Ofk94Hetjfb1qHMmYWlKuWlocBAVRcLonGlfDyxKsV0xFu2GGgxUSWXS6Ea6BRA1updwU4f3/E7tkd9ya5Qplzvj6XXBESoNp0VEnqB1JV28gKmmCWI4zh1qx8yfaTAjJY8bk5efXnrZ1W7o1m0pVrk5gAIKHtVN8QEqYzi6zYnC3IrpNkwPYVXeBMDfO0tA2EAnoR23rexVyUParESsqdTIZhce5tbnbBjci5u4bxEtwbKUiRPv37FBJ0OblGz3rN4R2zOMfusXJblimc3laU+JGaZmBMdSVJ6FXMolY0d66fjVvcTuF+T5vJmRX8+fjWCS4hfzb7ChfJy6OgvYJ6jY3VnWmG3b7XFgNFRbjMoZQVdyEpAG/j0rIU9V2vuwGRuTvuqFZCGX5T7fAXJg5LkLkvn24e84r6SvpedK6DpV8iw/U+HmfVKUpV1yr8UAoEEAg9xWivuP2V2K9JdjhgoQVqW17p6D07VHrlll0i3iU00ppbKHSlKVo7AHXcV5XLL359rfhuREIU6nl50LPTr16V+f4l2twS6pVaNZsubmADmyCRMQRMSeOi923wu8pua9hgGNjwWlskE3G6sRE7CVq94+iR1P8qttlttlpDTaQlCAEpA8hUD4btI9tlyl6AaaACj0A2ev91R6XxPvBuri2IsFuC1O9m5XFHSh4C1klZA11CT27HvT/H1iyhh5uSPaqE9Bp85V8ac+vX7tuzR5lbv5QebXbAsGbvVmRFXJVNbYIkIKk8qgonoCOvSqA/8ACYz/AOrWL/2df/frrGebTLtbb13TAdiqCVj2jkU1sjoRzdPPpWr9mwH6vjP5GK+8c0k6FeXRq02NhzJK5kZ+Urn63UJMWx6UoA6jr9f7ddT5TcHrRhd2vMRtr2mNBdlICk+6VpbKhsDv1Fcd/KTTbW+MspNqTEREDMblEYJDe+Qb1y9K6q4gXm0OcM7803dYC3FWh9KUpkIJJ8I9AN1VhOslbXFNn7Za2J/0q9+TpxbyjiBlc+13xm3NsR4XjoMZpSVc3OlPXaj00TV71yR8in/zg3f/AKqP/aoq3pvEu+RcmuEdUG3Lt0JqUtJ2tKpHhKSlAQvrskkggJOiDUsf7Oqpc281SGDgpDxItqULaubSdc58N3Xr5H/D+FfHD+32uc0+uTHS7IaWPpnaeU9un4Gv22X1eW4XdH30Rm3Y6uVbTPiEsrSlK+VRWlOyN9x0rR43eXLLJdeQ0HQ4jlKSrQ77Br8sxqnZ4V2jp3NdoNKoJMiYOomOcgH+yvate+uLB1Jp9ppjdWo2hDaAhtCUJHYJGgK+qrmVml2d2GkR2B8E7I/jU6sklUy0RZKztbjQKj8dda+3wftLY4rVdRtZ9kTqIEbaf+LxbvDq1q0PqcVmUpSvoVwJSlKIsSRc7fHdLT82O24nulSwCK+Pnm0/aMX9QVkrjsLUVLZbUo9yUAmvz2WN9XZ/IK4XtvcxyubHwPqtgaMag9R6LH+ebT9oxf1BT55tP2jF/UFZHssb6uz+QU9ljfV2fyCq5b/3mdD9ymaHI9R6LH+ebT9oxf1BT55tP2jF/UFZHssb6uz+QU9ljfV2fyCmW/8AeZ0P3JNDkeo9Fj/PNp+0Yv6gp882n7Ri/qCsj2WN9XZ/IKeyxvq7P5BTLf8AvM6H7kmhyPUeix/nm0/aMX9QU+ebT9oxf1BWR7LG+rs/kFPZY31dn8gplv8A3mdD9yTQ5HqPRY/zzaftGL+oKfPNp+0Yv6grI9ljfV2fyCnssb6uz+QUy3/vM6H7kmhyPUeix/nm0/aMX9QU+ebT9oxf1BWR7LG+rs/kFPZY31dn8gplv/eZ0P3JNDkeo9Fj/PNp+0Yv6gp882n7Ri/qCsj2WN9XZ/IKeyxvq7P5BTLf+8zofuSaHI9R6LH+ebT9oxf1BT55tP2jF/UFZHssX6uz+QU9li/V2fyCmW/95nQ/ck0OR6j0WP8APNp+0Yv6gp882n7Ri/qCsj2WN9XZ/IKeyxvq7P5BTLf+8zofuSaHI9R6LH+ebT9oxf1BT55tP2jF/UFZHssb6uz+QU9ljfV2fyCmW/8AeZ0P3JNDkeo9Fj/PNp+0Yv6gp882n7Ri/qCsj2WN9XZ/IKeyxvq7P5BTLf8AvM6H7kmhyPUeix/nm0/aMX9QU+ebT9oxf1BWR7LG+rs/kFPZY31dn8gplv8A3mdD9yTQ5HqPRY/zzaftGL+oKfPNp+0Yv6grI9ljfV2fyCnssb6uz+QUy3/vM6H7kmhyPUeix/nm0/aMX9QU+ebT9oxf1BWR7LG+rs/kFPZY31dn8gplv/eZ0P3JNDkeo9Fj/PNp+0Yv6gp882n7Ri/qCsj2WN9XZ/IKeyxvq7P5BTLf+8zofuSaHI9R6LH+ebT9oxf1BT55tP2jF/UFZHssb6uz+QU9ljfV2fyCmW/95nQ/ck0OR6j0WP8APNp+0Yv6gp882n7Ri/qCsj2WN9XZ/IKeyxvq7P5BTLf+8zofuSaHI9R6LH+ebT9oxf1BT55tP2jF/UFZHssb6uz+QU9ljfV2fyCmW/8AeZ0P3JNDkeo9Fj/PNp+0Yv6gp882n7Ri/qCsj2WN9XZ/IKeyxvq7P5BTLf8AvM6H7kmhyPUeix/nm0/aMX9QU+ebT9oxf1BWR7LG+rs/kFPZY31dn8gplv8A3mdD9yTQ5HqPRfUaQxJaDsd1DqCdcyFbFK+m0IbTytoShPokaFK7WZsoz78YWLonTZfVKUq6hVBe0lF5mJPcPr/vNYYBPYVbS7HaXJTklyC0464eZSljez9x6V5ZBb2nbBLjR2G0HwyUhCQOo6jt91fkF3/j65/ermqP+xAAJJ3IHCJ/tfV0sep+wwNPAEqLYGp72C7oistPSfB2026dIWrStBR9CdA1oLra8gswY8HFHbhJYS48wLWhlDC33UJSpRKlBTa0e+kHSk65enTVbXAJgjX0NLOkyEFH49xVk19X2ErtrYOxgOrCQes/Vefi5dRuyY0MHyhUf8p5mY1wAaauLyn5aZUXxVrQlKirZ7hPu7HY66elc/cNuEmTZ/aJFzsSraliO/4CxIdKFc3KD0ASemiK6Q+V+QODb2z/APX4/wD7xrTfIpI/0fXfqP8A50P/AGSK+tc0F8FYUqrqdsXjmuas5xK54bk7mO3ZUYzG0oUSwsqRpY2OpAqxkfJr4gqSlaXbHogEf6yr/uVhfKvVy8bZ6gRtMaMR+mK9U/KL4koQlKZNq0Bof6mP86zhoJBXWXVnsa5ka7q1/k7cJcowHKrhc76u3rjyIJYQIzxWrm50nrsDpoGvN7hRfkWxUqGw21LeBQ2w88VrSHDzKStSeUBAPf6XQaHUivH5OXFnL85ziTaL87BXGbgLfSGY4QrmC0Add9tE10JWzWtcNF59atVpVDmidFXmE2KfjGP5Nbp7W0qeU+1ISdtvJUylPugkqBBSQQfhUXqys+mCNYVsg6XIUEAfDuf/AI+NaXhrDDkiVLcQFISgNjY2CT1P9wr8v7W2n/LY3Qw+m6CG6neJk/Iea9nDa5t7SpcvHHrsFD6tjFElOOQQe/hA/wAetfUmx2iRvxbewSfNKeU/yrOYaQyyhlpPKhCQlI9AK9vst2Tr4LdVKtR4cCIETO869Oa4cTxRl5Ta1rSCDK+6UpX3S8VKUpRFR3GfKczxbiHjFntGSLbg31/w3EORGVqY/aJT7h5eo0rz32rL4u3riFw2szWTRcki323IkIakxJsFDa/e7FK29fd+NR/5UHtB4o8OvZC0JHtX7IuglHN4reubXXW/SnyhWM5Zt0C7ZbEtN4xOFJQ5MgW1xxhS1b0lThVslOzrQPn1rEk6r0qbQRTmNfhqrntWV2eTYLXdp0+HbhcYjcltuTIQg6UkHXUjet1tGrnbnYBuDU+KuGASZCXklsAdzzb1VJceLpZcl+Texe7RHbTCdci+zoLYBZAcCSj4a0U9PSrrtMdhFmix0MtpZDCB4aUgJ1yjprtWgMmFyPphrc3ifJeDWRWB1h59q921xphIU8tEpCktgnW1EHoPvrHGY4iVBIyiyEnsPb2v+9UR4D2+CxYMjaZhsNoVkU9KkpbABSHNAH4AeVRr5LNmtEzAbouXaoMhXzzKRzOx0KPL7vu9R2+FRmOisaTAHE8IV0xpUaVHTIiyGn2VDaXG1hST+I6VqVZjiSCUryiypIOiDObGj+aqjyGE3wy44YsrGtxLNlDqo022NnTIcBSA4lPZJ99J6eh9aysNtdskfKczhuRb4jqE2+OtKVspUAohG1AEd/jTMdlIoNjNOkT9FcdtuduuTZct0+LMQnuph5LgH4pJrFnZLjsCUqLOv1siyEa5mnpaELG+2wTuqi+UPYImHWljiPiKEWa8W+U2l/2VPholNrVopcSOiuuvLtv4V8cXbhazxC4U5BPjJDDxffd0wXFaLSFJHKkEq0T6ULiEZQa6CDoZ8ldE67WuA029OuMSI27/ALNb7yUJX59CT1rwXkePohCau+WxMUr8MPmUjwyr+rzb1v4VVPHXN8Vu/Ce/wY65TkhyNpkO219CQrmT15lIAT9+xW2uEWMn5MC20x2Qj+jQXyhA1zeCDvXrvzpm10UChDQXSJMKx7ZdrXc2lu224xJraDpa47yXEpPoSD0rEhZVjM2f7BDyC1SJe+XwGpaFLJ9AAdk1VMW2Xeb8kqJDxlpQnvWptXIyOVbqeYFxI15qTzD47r14eZjw7zhqzWFVvbsV+tbzLzEB2OG1tuNaJS2rXUEAgjodE9KZ9lPcCCeRhWm7k+NNOrZdyG0tuoUUrQqa2FJI7gjfQ1+xskx2VIRHjX61vvOHlQ23MbUpR9AAdk1XHG/FbDaOCOULi2uGJBbU8qQWEeKpa3goqKtb37xrcYHh9guOB4bPVbIjMyHHiS2pDTCEuc6UAnatb0dkGkmYVe7p5M0neFMMsvLGPYzcb5JSVMwYy31JHdXKN6H39qrjC7ZmOcYtEyybn1xtL1ybL8aHbWmvZ4yCfdSeZJKyPPZ9RVoXq3RbvaZdrnN+LFlsqZeR6pUNH++ucn7Dxa4KtvyMbkt5HijSlOGK4kqLKN7JKPpJ+JQSPMiofofBWoAOaQCA7xVy4Fdrpb8WKc8usRFwYmvxjKe5Y6ZCULIQsA6HVOj0qTwrpbZ0dciFcIkplHRbjLyVpT031IOhVUX/ADG1cRfk5ZDfWIqUKTAeQ9Hc0ssPJG9A/iCD6GptwdjR2OFWMIZZbbSq1x1KCUgbJbBJPxJqWngq1GQC4iDMQt1GyKwSVqbjXu2PrSkqUluW2ohI6kkA9hXrbbzaLk6pq3XWDMcQOZSWJCHCkepCSahHDO2W+Nn/ABDXHhsNlV0YB5UAdDGbUR+JUT+NVHHP9CuNsrNY4SzaZOSP2W4pQNIbStCFIUddveJP/LQuIVm0GvJAPCV03OlxYMZUmbJZjMJ1zOPOBCRvoNk9K87dcYFxaLtvmxpjYPKVsOpcSD6bBPWqd+Uyt6/W1/F4yz7Pb7Y9eriUnyQClhB+9fMr/kqecFG2UcJsYLLLbQVbWSQhIAJ5Rs/eakOl0KjqQbSD+JUguF8stvf8Cfd7fEd1vkfkoQrXronder90trEFM9+fFaiLAKX1vJS2d9tKJ11qovlQJt7TmCy57TRZbyJnxlKb5j4eiSNAEkdO1SfK85w2Til0h+0vLSuG6lKF2yRy75Dru3oVGbUoKMtaROql7N/sT0d2Szerc4wzrxXESkFLe+3MQdD8a8DleLjvklm/9ua/71QH5NEWN/oDtAMdn9q3I8Ucg9/9q4Ovr+NV/wAA7vg1o4YXL+ksCO86idKcIctinuZsAdOcIKddCNb6VGfZafpx7UToYXQsm/2KKlpUm9W5hLyA40XJSEhaT+8nZ6j4ivf5zt3zf84+3xfYtb9o8ZPh69ebev51Snygrfa0cFcbTDhpRGbnwBGS4ApTbagfd39x1V4ezRzG9mLDRYKeXwuQcmvTXbVWBJMLJ9NrWh3OfJYTeQWF2M7JavVtcYZIDrqZSChG+3Md6G/jWTbrjb7i0XrfOjTGknlK2HUuJB9NgnrVd/J0tsFrhh7OIrJbXcZgcSWxpYD6wNjz6ACqlwpd04UM2vO4odk4le3HGbxGQN+yuB5aUuAemgNfiPMVXPEFaC3BLmg6jbxXSy8gsSJhhrvVtTJC+QsqlIC+b05d738KyLpcrfa4plXOdGhMDoXZDqW0j8SarmczZrlxxxS7w24slEixS3WpCEg845m+VW/Poo9fjWg4T+DxK4gZPlt/bROi2maYFniPDmajJTslwJPTnPTr99Tm4KO5EZjtH+la9syrGbm+mPbsgtUt5X0W2ZaFKP3AHZrcE6Gz2rQX7E7Hd3YD70COiRAlNyo77bSQtCkKB0DrsexHoa3/AHqwnisHZf8AqtOzlWMvyUxmMhtLr61ciW0TGyoq9AAd7rcVTGBw4g+U/na0xmQpECKpJCB7pKUbI+Jq56hplXqsDCAOSxplwgw3ozMuWww7Kc8OOhxYSXV63ypB7nQJ0K93HG221OuLShCRtSlHQA9SaoHjw1dr+u55dZnnA3g0ln2VKOzrwIXIV8eVJbH4Kq7MXu8TI8Zt96iEKjT46XkjvrmHVJ+47H4UDpMKX0srA5ZEC62ue4puDcYcpaRtSWX0rIHqQDXtMlRobCn5chqOynXM46sJSPvJ6VzRB5cL4zSs0igM2mVksix3FCByobStLam1aHQe8SfwqY/KZccvtskYxHWrwbfbH71cOU+SAUsIP3rJVr0RVc+hWpthnaAdCrii3K3y2vFiTo0hveudp1Kxv02DSo1wZbYHCjGCywhsG2MEhKQNnkGz95PWlXGoXO8BriFL6A7pVR4YrIrTZl5pb1y7vb7lMkyJ9sUrmWhsvLCXo+/MICdt9lDto9xMKWU8wJlWHlN6VZYzTiYpeLhKQSrSUn41Brnkt3nbSqSWWz+417o/j3qaurtuXYumTbZTUmNIR4kd5B6cw/uO+hB6jrVavMutPqYcQUupVylOuu/Svybt9c4nb3DQ2oRReNANNeIJGp56819LglK3ew5mjON5Xy04tp1LrailaSFJI8iKtfHLo1dbah9JAdHuup/qq/yqJ2rDXpFuceluFl9adst+n9r/ACrTQZdwx66q90ocQeVxtXZY/wDjsa83Ari+7L1GVrumRRq7+HIxwPhxHiui9ZRxJpZSd7bVZ8+DDuEf2edEYlMkg+G82Fp2Ox0elfMC3W+3NKat8GNEbUeZSGGktgn1IAHWsax3uDdmgWHAl0D3mlH3h/mPjWzPUV+yW11RuqYrUXBzTxC+SqU30nFjxBVV3riFbo/EKRalWyFPt7UNbi32wl1/nbP7T3UgnQBAAOuoV1GussxO52PIzO9ksyWUw3ksrU6y0UrJQlfulJIPRQ36GozxJxuabxCnWuJNmOul5Ul1ttK1NBKR4aE9U8o95fYjezsmpPwsjSo/D+ypnxVRppioVIQtsIXz6/eA7K7fGtBMwVvUyd2HN3UgYhRI6+diKw0rWtobCTr8K9lqShJUogJA2SfIV8SZDMZlTz7qGm091KOhUAyzKFT0qhQSpEbstZ6Fz/IV42OY/a4PRL6pl3BvE+g8fqrWdjVu3w3biVg5fdvnW6EtncdocjXx9VfjWLabzcLXsRH+VBOyhQ2kmtnaMTmTrYuWpfgrUNsIUPp/f6fCtDKjvRZC2JDam3EHSkq8q/E8Q/5ahWGJ1g5jqmocNP68NNgeC+xofpXsNu2CG6R+fkqf41lSrpLRDeiFDqgTzoO09B5g9qk9RPh7ajGiKuL6dOPjTe/JHr+Na64XGdnMx6z49KdiWFpSmrhdmjpT6h0UxHP8lOdh2T16j9n7MVb6rhzKt86Xu1GkGOEx1/tfJX9OiLhzaIho3+KntKiXCB11fDu1MvLUt2IlyItSjsksuKb6k/2altfQgyFwPblcQlKUqVVc7fKDdmXTihh8u1WS9z49lkhc11i3PKSn9qgkJPLpXRJPTdSnjFeblm2GyMRw/HbxMk3IoQ7IlQnIrEZAUFEqU6E9emtDdXBSqZN/FdP6gAN0/iqgyPhdOHydk4FbpCH7lFaS8hW9JdeC/EUkb7AkkDfwrLx3izARjkeJc7LfmskYYS07ak210uLdSNaSoJ5eUkdyegNWoRumqnLGyr32YQ8TrKhPDC3TMXwEu5Anw58mQ/cJzbSS54bjzhWUAJBKtAgdPSq++T1fE4ph9zgX+0X+HIXdX5DSPmeSsuIXrRHKg+nY1e+qUy7QnfSHBw3VTwLJec64nW7M73a37TYrE2v5piShqRIdV3eWj9wDQ0D16CtLjd1Fs+UDl1/mWu9ptU2EyzHlJtUhaFrRybA5UE66HrrXSrypUZVIr7gjSIVQZ6xduK7sLGoFquFuxhuSiRc7hOYUwp8IOw002rSjs91EAdq8uKSuTi1w9ch264uwrM6+ZbrEF1xthC0JSjakpIPby3qrkIFNUyqBXiIGgnzVdfKHWuVwhvdvhx5cqVOYSiOzHjrcUs86T2SDoaHc6rWzJiHvk4GCzHnOTFWMQRGTDdLvj+EE8nJy77+etfGrX1TVSWyVDaoa0NjYyqs4d3yRjfBnHFvWm4rVBQ1GuLHsbofYSdhSwjW1BJ0TrfTdabPoVkz/ADLFpOIxXHrrBuTcmbdW4y2kMRkdVJWtQHMokABPU9+wq7NU1UZdIVhWAcXAa6+arz5Q6nH+E97tUWLLlzprAbjsRo63VLPOkn6IOug863XCh8L4e2OOpqQy/GgssPNPsLaWhaUAEEKANSmmqtGsrPvP28kcZUc4jT7zacVkXWxQ3Z0yI406YrSOZb7YWnxEAepRzaqKTOMuLLtqhCg3ubdHEFLdr+a3g6pZH0DtPKOvQndWdWNc58G2QXZ1xlsxIrKeZx55YShA+JNQQealjmxBbKqPhpwzuUDghfMduPJDul/S+840DtMZS06Qjp6ADdfnDHP2MWw6FieZW28W+92pv2XwkW914SUp6IU2pCSFbGh3qTNcXsPkocdt4vNxio6GTEtL7rR9dKCetSHC8wxzMIb0rHriJiI6/DfHhqQptWt8qkqAINVAHArZ7nkE1G6EzyWk4WwrkxEvuS3yI7Bk3y4KmiK4NuMMJQlDaVAfvcqASPLeqgkCxpzTFeI+PvQJ8WRcbs/OtypUNxoL0EltaSoAdVJ166NXrqmqtlWYrkEmOXkqGtMG8M8DckvOVx5f9I8ggqjhgR1qdCW2i2y3ygEgnSlH+2TVg8Cn+bhZYYbjchqVDhoYkNPMqbW2sDqCFAVONUoGwUqVs4IjjKpj5SwkzX8RjwLdcZrkK9NTJPs0Nx0NNJ3tRKUkfh3qxM2uDC8Cur7SJLokQXUMobjrU4tSkEJHIBzb36ipHqmhSN1XvBDRGyqX5PkxNq4IQoVxjzY0uA28JMdcRwOJ5nFlOk8u1bBHbdaXgLeI2PcM3bJkdlv7D6pclS46rNJX4jazsfRQRog61V6apUZdlc1gc0jcyqm4o2K655wYaTZrauBOZdbmQoDo8NXK0ohCCDrlUUaOj2PSsmLxdgP2EIRY76rJg1yG0fNroc8fWtcxTyhO/wB4ntVn6FftTl4hR3oIhwUL4YWh7C+GkKHeCTKaQuRM8JJc064srUlISCVaKtdO+q0vBtiLeuFQxu+2qW31kNSYk2KtrmbW6tQ+kBvooHY7VZ2qaplVTVJmdyZVA8McQyHC+NsewynX5mPxbfKXaJKkkhDbi0FTZV5EEdvxHesrGmZnB7iBkCbjAmP4hfX/AGqPOisKeER3Z2lxKQSB72t68h8avPQr91UBkbLQ3JcfaG4g+qoHic/Z8wzfEFYkzcJ5Vc0m7uRWH0NmP7v+0OgNd/51fTDTUdhDLSAhttISlI7ADsK9NUqQ2NVnUq5wGjYKjMdvAtXH7ML/ACrRffmufEYZjym7TIWla0BIUBpG9dD17dKm0nPnzZr9dotiu62ISUtQGl255L8t8oJOkFO+TZSN6H71T2mqBpHFWdVa4yW8vJVbheA4pJ4fxpN7tzsmbJjqeuTzoeQtby9qdJR0O9kjWvIVpvk0XC42Wx3LEr1b7tHYt0p1y3ypEF1DbscknoSnoQQTo/1quvQpqoyxEIa5cCHaz5Kh7Na2c2xriRjj0WXHfuN2fnW1T8Vxvm0lPhuJKgB9JP36Nedqh3hPA/Jr5lEeV/SPIoao6WEx1rdCW2/Cab5QCRvSlH+1ur81TVMiv+pPLTT8+SgfBOe01wsx+JLD7EqLDQw+08wtC0LSOoIIHwpU81SrAQFg9wc4mFCJOaPXxLsPCLY5eFHmbVcXCWYLSuoJ8QjbhB8kA9u4rd4xb2cWwyBbpcpvw7bDSh58+6n3U+8vr2Hc1ortb52HXF+/2CM5JtD6i5dLU0NlB85DCf63mpA+l3Hvd9bdbhH4lXZrH7RKD+MRkokXiW2fdkkgKbipPx6KX6DSfM1WY33W2UOHs/x/PwKvZ3GPEcdyeRdbI1c4SZDgcn2yTFKGpqFfRksnZ5HCnR6gBY76PWrzsqLLfGoeTwmw6mUwl1lxSSnaSNglJ7HVQnibgljy02nLbVboF3l2lYUiOlY8Kcyk9WSR02Dvl30BGj0Jqd4terbfbO1Ptiz4JJQppSeVbC09FNrT+6pJ6EVi+3p1SBVaDBkSOPMeKvUqANDqcg7HXyWfMksw4y5EhYQ2gbUTVXZLdl3e4F8oCG0DlbTrqB8T61YuQ2lu7wDHW4ptSTzIUOwPxHmKrW72mba3i3KaITv3XB1Sr7jX5x/kOriJa2m1v7G5I4nx5Rw4H5exgLbeS4n2+Xh4LDYLodBZ5w4OoKN7H8K3kDLbxFSELcRJSPJ1PX+I61suG0DnkP3FY6IHht/ee/8AL++txmcK3N2STLVDZ8YABCwnR2TryrxMHwHEKWGHE7e4NPQmNdQOPkdxyXZd3tB1yLapTzbCfErTozp7l9+3NlXqHCB/dWPKze4uJKWI7DPxO1EVFqmmAW+2zYLrkmI26+07ra+vQjp07etY4VjOO4zcCzZc5SQdYA28QJlXurOytKZqmnP54lRW4T5s9fiTJDjp8tnoPuHavOE+I0tp8tIdDagrkWNhXwNT7PLY25ZA9HaQgxVc2kp17p6H/A1XzLTjzqWmkKWtR0EpGya8nH8LusKxAMqPL3GHB3PrPHRdVjc0rmhmaIGohW3ZrjGucFEmMeh6KR5oPoa87rZoFyW05LZCltkEKB0SPQ+orVYVYZNsC5UpwpcdTrwUnoB8fjUjfdbZaW46tLbaElSlKOgkDuSfIV+2YaKuI4cz/kaQDju0+GxjhzjgvjrjLb3B/Tu04FURxM4vY25kMvE5E2fEtUJfgzxDYV7RNUOhYbPTkR5KVvZ7Dp1q2OHt6s18xeM/Y4qoUdjcdUJxvw3IikdC0pH7pHT8CDUKg4tZM+4hsZ47Z2m7bbxyQnlI5V3JwHo+oebaeyN9Vd+2q2GRvNY3fVZ/ZHESrS+r2bIWo6gsAIPKJIA/fbO0r9U/2a9ZsjUo8McAxog/X89FkQ37zg8iezKsz9zsUic9LblW/wDaPRg6srUlxn6RAUT7yOb7qmNhu9tvtrZudpmNzIbwPI6jsdHRHqCCCCD2qIz7jKzmY7ZselrZsLR5bldmFaL/AKx46h//ACcHbsOvaZ2uBDtlvYgW+M3GisICGmmxpKUjyFXHksakRr/JZNDSlWWKp7MuK17xDilAxi8W23OWiUpkrnMlaVModUpCeYE63tJ35aqx83vzOM4pcL46nxBFZKm299XXD0QgfFSiB+NVTxMxpOZ8QMwsIQPaDi0ZyKrzDyH3FII9OvT8a+cEyRfEyNhdmeBUq2IM++oI7Oxz4bKFf2nPf1/w1lmMkLtNJpa10bb/ADUr4N5nk2e4tLvUqJarcpDzkVllIcWUuo1sr6jp17Dr8a1eDZpxGy2bf4sOJisdVluC4Dpe9o/aKT+8NHoK+PkqnWEXpop5S3f5YI/FNaPgxbL9PyTiIqz5Ku0JTkj4WgQm3+dWzpW19vuoCYClzGhz9Bop7fcjzG08MpORyLdam7rb0PuS4q/E8NaW1qA8NW9jaQCCfWvvgvnq89xl6bMhogXKHJVHmRUEkNqHVJ69eo/mDWLncWbA4B3qFc5QlTmLK4iQ9vfOvkO1fj3qCpuMfhjxbj3eWoM2DK7Ol14j6KJTLYO/vI/mupJIIVW02vYQBrJhSXPuKdztHFC04RYrdCkqmONMyJUlS+Vl1zqE6T3ITpRHxFb7Nc5k2e9WvErPBZu2UXJPOhkrLbDDY+k84epCOh0O51VV5FbpMK58L7zcElu53vJV3GYD3Sp3k5Ef8qAlP4VvrKSx8sC8CeCFSLKn2Iq80gI3y/wX/A1GYq5pMgEDYH+yFJ8uyDiLhlpVkNyi2O+2uMAqcxBacYfZR5rQVKUFgeYIFeXEjiPOtHDeJnmKpttxtr/hbbkpWFHnVyjRSroQehBHcVMuIT0WPgl+emqSI6bc/wCJzdteGa50eiSonyMYoloWjxZqHm0q78ipHQ/ce/41LiQq0WtqAEjjCszKOI+Y4PIs8nL7FZ5FouT6WParZIc52Fq6jmS4OvTZ6HyNS3i3kN5xPCZ2SWhqA+YCPEeZlBf7ROwNJKSNHr57qrrxLencWrPi/FMo+Z0lErH1x0eFGkvAdA8TslQ7a2Bv7xVg/KIP/QplP/5P/wDumgJgqHMaHsEb9FJMGn3W64tb7peBCTImMIkBEVKghCVpCgn3iSSN9+lQ3PuJ/wDRriXj+NpjtLt8pxLdzlKB/wBXU7sMp3vQJKSTvyqU4bLjwOGVmmy3A1Hj2dh11Z7JSlkEn+Aql8hsOS5Zwrv01eJSlXC9yheWJhlsjwkI14KQkq5+jQ1rW9qNHExoopMaXku22/PguhpgkmI6IamUyOU+GXUlSAry2AQSPuNV5wgzPKcym3o3ONZosW0z3IKxHS4VurT+8CpWgO3ka3PBrKU5fw4tF6UsKkqZDUoejyPdXv7yN/jUO+TR0Odf/qaTUzJCoGZWPBGoVw1zrxYlv5/8oGy8NXnVixwil+aylWg8oILiub/l0kemya6Hbdbd5vDWlXKrlVo70fQ/Gua+IZVgfyqLTllwBbtN1CUl8/RTtvwlgn/hPKfuNRU2V7Qe0Y3gx8V0jCix4cVqLFZbYYaSENttpCUoSOwAHYVqrbZLfZLter20pLIuSm3pI0EoSW0cpX+I6n7q3KFpWkKSoKSRsEdQR61EOLExL2D5NZoTpVdDZX30so3z+GUlO/xOx/GrnTVc7JJjmtNjWZZRnrkqbh0e22+wx3lMNXC4trdXMUnuW20qTpHxJ6+lfdhz26wc8bwXN4MSJcpTZdts6GpXs01I7pAV1QsaPTZ/u38/Jmdiu8E8e9mKTyNuIc15LDit7qOceGjN4v8ADCFCBVPRPW+rl7pZSpBJPw91VUk5QV0hrTUdTjTXyW+tGZZlN4vXLBXGbChm3xkS1yktulS21FOkhPN0V73feulTzJXrlGscqTajE9rZbU4kSUqU2dDZB5SD+NVjjP8A9KzKv+oo/wDeirQv7rZs9xaC0+IIjiinfUApVo69Oh/hUtOhWdUAObA4BRLgllt/zjE2sluzFsix5CloaYjJWVgpUUkqUo68j0A/GsXjdmuR4LBt1ytcW1S40yY3CLckOBaFr5iFbSdEdO2t1hfJTP8A0J2n/wBNI/7VVar5WLiZGCWFUd5PvZBHCXE6UAeVwb9Do1BJyStAxv6nLGkqax5fEeNerci6QsckW19/w5K4Jf8AFZHKohWldNbAH41rL5nl3uGcP4Tg0GHLnwkBy5T5qlCNDB7J0nqtfwBH8jrb2+x5TFyaBPuOWqucBlDqXWFRG2PeUAEq9z6WtEaPrVd/Jsc9nz/iTbZ/u3P518ZSV/SKOdwb+7qP4ihJ0ChrWkF2hgfVTqS/xMtUmE9JVjt3hOSWmpSI0Z5l5pC1BJcTtagrl3sg66Vq+J2bZbjOa47YrZGskhm/yFMR1yUuhTKhy7KuVXUe95AVn8SuIE/Cp9sYXjRuDFzlJiRXmpqUHxVdgpJT7o79dntUN49InyuIPC1CXU26c5cHAFoAeDKz4fUbACtfEUcYGimkzM4FwEGVY1gl50jIUxMih2NVvcjrWiRby7tDiSnSVBfbYJI+6pXUWx2z5Fb8jfmXnJDd4rkRLTKVR0MeGsLJPup6HY1179KlNXC5qkTp5JSlKlUSlKURKUpREpSlESlKURKUpRFhX5NxXZZqbQtpu4FhYiqdG0Jd5Tyk/DeqrO1Wld24UiwYs+bXLjurbvUaRsSFvEEvJWpHUKUohQUOihoDQPS2aiOV4/PbuYynGC23em2wh+Os8rVwZH+6X6KH7q/I9D0JqrgtqT40Va4TlE7EIjbHsK/YkutquSJYLCmVuqGw2gj6Q2pZGhzaURypCdzt2CbitOb4DLZTLkJ/1mK8Chi4BJI5XEkbbdGiAvWxrSgR2wZFosWeoF+spFqv8R9PtaXYyPHQ6hJAaeSoHWjohXUdEkcwAqEwFZZhmQm2x5v7Z6QA0iW37slbhQhSiQdrQlaknvzBKge/PWc5d9l1kCoSRo7iFcOKZXb7647CUh633eOP9at0ocrzXx12Wn0WnYNb11pp9tTbraXEHulQ2DUCC7NmdjYuGS2/5mfakeFAnJlpbWpROkuR3QQrlV5Agb9CKy0rzrHfdUhrLbcnstJTHnoHxB027945DVzDhDhIXK5kHTQ/mxUuhRI8JnwYrKWm9lXKnts1qs0hTbhaRGhNhavEClAqA6AH1+NYEDiDi7zwjTprlnmHvGujSoq9+g59JV/yk1Jo8hiQ2HY7rbyD2U2oKB/EVx3dhRurR1p/FjhHswIHhw8lLKlSjVFUjUa6qsDjV8CtfN7n5h/nUpwS1XK2OSfbGQ026lOhzAnY36ffUrr8UpKUlSjoDuTXzmFdibLDbpt1Te4ubtJEaiOS77nGa1xSNNzRB+Pqvl9pDzK2XE8yFpKVD1BrEtlpt9tTqJGQg+az1UfxNay8ZritqWWpd9h+P2EdlfjPE+gbRtR/hWrVf8svo8PG8fVbY6v/ALQvQLfT1RHSedX/ADFFfVPt6D6gquaC4bGNR8DwXnt70NLQYB/oKSZBe7XYLcu4Xea1Ejo6cyz1UT2SkDqpR8gNk1EjBumcuJkX6O9acZQoLbtrh5X52uypGvoN+jXc/velZtrxq0W68x7jfbou9X9xXIzJmlP7NRBPKy0Pda2Eq7DZ0epqK8RLhcpt7ctE+UpmIiUWWYEAqEqW24wSlzRPK6kEK9zoPdI76rVx5q1NgmG9fRZvETKJzQYtliJjwlueAqSwQhwPNrBXH2ocjI8NKjzL6EEarA4VR7rbbdcp10WxBxVIcVyTEq6tBOxyBR5UNe8ok6PMd62nVZFkxZ561IvefzGWre1EaW/Fc9wPBCdpVM2SlSkb0Nd9Dez0G1gxJOeSmJ1wiuQ8VjLS5BguJ5Fz1J+i66n91odCls9+hPkKrqTK1Ja1haNuJ/OKyuDcWRExdxCIy4lnXKccs0Z1OnWoijtIUPIElRSD1CSAetTavwCv2tAIELje7M4lKGlKlVUPg4U7F4gSsyGQTVyZTCYzsYtN+EWknaUjpsEHz3vqa+8XwS2YxIyCXY3FxZV7lGS64UJV4StfRSCNaBKjo+ZqW0qMoWhquPFQvh7gf9CrfcINuvsyS3NfXJJkNNkoeXrmWNAb7dj0rX4rwzlYzIusi0ZldWl3WSZUrnjsLCnTvahtHTvViUqMoU98/XXdQq44GufhdyxqVkdxdF0dWudMUhvxnQvQKR7vKkaAA0Owr5vnDi13/GrNZL/LfuCbTJafYeUhCVqDY0EK0NEEdD61N6UyhR3zxxUKzzAU5bebPcpF7lwjZpAkw2mGmylLo17yuYEnsOnavfNMDt+ULt89+XJg3u2nmh3SJpDzZ8xoghST5pPSpdSpyhBVeIg7KB3PAbhkEduDl2WS7tbEKSpyEzGRFRIIOx4pTtSh26AgGsviNgUXM8cax124yLbbGyglmI2gb5PoDZB0B6CpjSmUJ3rwQQdlD82wC2ZliLVgvzzry2SlTM1tKUPNLT2UnyB10Pka8b3gci84AcOuOUXJ+M4kNvSlNtl91saISTrXl31s1NqUyhBVeOKhV2wN25cPm8LeyOe3DSymOt9tptLrjKQAEE61rp1IHWpLEgyY9kbt6ZpLrbQbTI8JII0NA8v0e3l2rYUpAUGo4iCoDw64b/0GauDNpyS4usTlqdUy+00UNuq/3iQEjX3dq8cT4ZysXFy+Z8zurXzlJVKk88dhe3Vd1DaOn3VYlKjKFY13mZO61OJ2QWG0+xGbInurecfekv8AL4jq1qKiTygDz10HYCvHNcUsWY2Ry0X+EmVGX1T10ttXkpCu6TW8pUwIhUzuzZp1Va2HhzlGOxhb7HxLurdtQNMx5kJmSppPkErVo6H8K3uEYU3jk653OVebhe7nc+QSpU0p+ijfKlKUgBKfePSpbSoDQFd1Z7plQG38OncfucyVhmRSbFFmuF1+3qjokRvEPdSEq0UH4A6+FbPGMJiWm9yMinzpN5v0hAaXPlBILbY/3baEgJbT8B1PmaldKnKFBqvO5Vft8N32c6nZnGy25MXSayI7vLHZLfhjWkhJSe3KOvetnGxCa2xdy9k0+TNujaGVy3GWuZppIUAhCQkJA95R3o9TUtpUZQpNZ5VeYpw2m4tjacfsebXeNCQpakbjx1rQVHZ0oo9TX5mHCyJkmN2fH377cYsC1FtbQZS3zuOoBAcUog7PUn7zViUplCd++ZnVRN3FLrKkQzcsvuUyLHfQ8qN4DLaXig7SFlKQSNgHQI3qsDL+G8W75Mzldlu0vHshbR4apsVKVJfR/VdbV0WP/wDPQVO6VOUKBVeDIVc3bhvdMin2iTlWYyLg3apSZbDEaC3HSXU9io+8SKzM54djK8mtN9fyGfCetDniwUMNNlLazoknmSebfKO9TqlRlCnvngggqMxMZuIvkS5XPKLhckROZTUVbLTbXOpJTznkSCSATrr51JqUqQIVHOLt0pSlSqpSlKIlKUoiUpSiJSlKIlKUoiU1SlEUYynFBcJqb3ZZirTf2UciJaE8yHkD/dvI7OI/mPIitU3fYNxkJx7ObY1abs4lTTKlK2xJChpRjP8ATRI/d6LHoe9TysO72u3XeA5AucJiZFcGltPICkn+Pn8aqRyWranB3+1A+LGM3q5sRF2liO9Bt7JKIiE/tebRQQhJ0lXuqBAJGiga71HMFveX/wCkZWO+FIjwSpClMyU8yYsdtKuZKT5qP7NJOyNgnrsVNk45kuOgnFLwmZCT2td3WpaUj0bfG1p+5QWPur8Obwom0ZdZbjjzpSWy8+14scg9wH29pA/tctVI1nZbtecmUCfn0Wje4pY/PecgS7K5PZSXi4AlCglttSgVcjnLze5yL0nfRY1vRr9kweD6npi1MwbY7EcKZBYcciFChvzbKR5HtWW5heL5AVXDHb4hIXHDKTGW1IaASEhBAIJGuRI0CNgaPetRP4TXJi5Ku9rvDL87RURKQW0uOkj3yUg6I99Q6dCRUe18VYGlsCWqSJwrFShK27veghbXjoIv0jRb6e+P2n0eo6/GvlnCuH0h9DbyRcnV75Uyrm7J5tJCj7qlkHQIPbsR6145FjuRrjRINvbiOpcsarXJkKd5PCUoo2sIA0oaSegKa02CcPsis2bw7zMkxVRI7ZbLaVnaj4CWecD1IbR0301U8dlUGWk51tTmGBYygRsdtjb7hjmQGrXEQkFvlJ5io8o68p897Hao3euJ10vrVxRjDjEdiOEJB3qRIC1p5VNKUCkHlUkEFJI5j6Vms8JWLfcZN0ev7MVAlmQxzxkOJYTzLIT+093s4vrroVbHYV62lXDKxrMSwwV5JPbdDobgsGYpLid6VzAeG2Rs9SR3qPa+CuO6GrQXFR2x4zmWR3Ri4KkuwlJZ5vbXf2gc2oOtJB6b5VKUoKCehPLoAEVY91u9sxyPb2L2/wDP+RpCjFbYiIMp5R7lCE/7NPlzEgADqa+C1nWRJ5XVsYlAV+60pMmcpP8Aa/2bX4c5rd4zi9nx5Lht0YmQ91flPLLsh8+q3FbUfu7egqWtjZZ1Kod/LoPVaODjd0yKazd828Lw2VhyHZWV87DCh2W6f984Pyp8ge9TUDVftKuBC5nPLkpSlSqpSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlKUoiUpSiJSlKIlfigCCCAQe9KURRu64NiM9apT+PwkSdE+OwjwXd/229K/nVI8TbpeMVmLasN8vEVtPRKVXB50D8FqNKVlU0Gi77Ilz4dqFW7nF/iS2vw05XL5T6ttk/xKd1JcNzbL79OQxdMlurrau4bkqa8/wDgIpSsA4yvUfSYGkgBdAWLBMUkxWpk60puL568895yV1/9apVTCHGjxGEx4sdqOygaS20gJSPuA6UpXWAF4FRzidSvalKVKzSlKURKUpREpSlESlKURKUpREpSlESlKURKUpREpSlESlKURKUpREpSlESlKURKUpREpSlESlKURKUpREpSlESlKURKUpREpSlESlKURKUpREpSlESlKURf/9k=" alt="佛教沈香林紀念中學">
+        <h1>📋 學校當值出勤記錄</h1>
+        <div id="currentDate" class="small"></div>
+        <div class="small">2026/27 · 可調更老師 · 含巡堂及校外巡邏</div>
+    </div>
+
+    <div id="passwordGate" class="password-box">
+        <h3>請輸入管理密碼</h3>
+        <input type="password" id="adminPass" placeholder="密碼" onkeypress="if(event.key==='Enter') checkPassword()">
+        <button class="btn" onclick="checkPassword()">進入系統</button>
+    </div>
+
+    <div id="mainApp" class="hidden">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('dayaf')">Day A-F</div>
+            <div class="tab" onclick="switchTab('patrol')">巡堂當值</div>
+            <div class="tab" onclick="switchTab('outdoor')">校外巡邏</div>
+            <div class="tab" onclick="switchTab('saturday')">星期六／假期</div>
+            <div class="tab" onclick="switchTab('exam')">考試／試後</div>
+            <div class="tab" onclick="switchTab('special')">特別活動</div>
+            <div class="tab" id="settingsTab" onclick="switchTab('settings')">設定</div>
+        </div>
+
+        <div id="tab-dayaf">
+            <div id="dayafAlert" class="alert hidden">
+                <strong>⚠️ 未出勤／遲到提醒</strong>
+                <div id="dayafMissing"></div>
+                <button class="btn warning" onclick="notifyMissing('dayaf')">📱 WhatsApp 通知</button>
+            </div>
+            <div class="card">
+                <h3>選擇日期與循環日</h3>
+                <input type="date" id="dayafDate" onchange="loadDayAF()">
+                <select id="daySelect" onchange="loadDayAF()">
+                    <option value="A">Day A</option>
+                    <option value="B">Day B</option>
+                    <option value="C">Day C</option>
+                    <option value="D">Day D</option>
+                    <option value="E">Day E</option>
+                    <option value="F">Day F</option>
+                </select>
+                <p class="small">選擇日期後會自動顯示對應 Day。點選「到」或「缺」後，請按「儲存」確認（會記錄時間）。</p>
+                <div class="card" style="margin-bottom:12px;">
+                    <label>選擇時段：</label>
+                    <select id="timeSlotSelect" onchange="loadDayAF()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;">
+                        <option value="all">全部時段</option>
+                    </select>
+                </div>
+                <div id="dayafList"></div>
+            </div>
+        </div>
+
+        <div id="tab-patrol" class="hidden">
+            <div id="patrolAlert" class="alert hidden">
+                <strong>⚠️ 未出勤提醒</strong>
+                <div id="patrolMissing"></div>
+                <button class="btn warning" onclick="notifyMissing('patrol')">📱 WhatsApp 通知</button>
+            </div>
+            <div class="card">
+                <h3>訓導／學務巡堂當值</h3>
+                <input type="date" id="patrolDate" onchange="loadPatrol()">
+                <select id="patrolDay" onchange="loadPatrol()">
+                    <option value="A">Day A</option>
+                    <option value="B">Day B</option>
+                    <option value="C">Day C</option>
+                    <option value="D">Day D</option>
+                    <option value="E">Day E</option>
+                    <option value="F">Day F</option>
+                </select>
+                <div id="patrolList"></div>
+            </div>
+        </div>
+
+        <div id="tab-outdoor" class="hidden">
+            <div id="outdoorAlert" class="alert hidden">
+                <strong>⚠️ 未出勤提醒</strong>
+                <div id="outdoorMissing"></div>
+                <button class="btn warning" onclick="notifyMissing('outdoor')">📱 WhatsApp 通知</button>
+            </div>
+            <div class="card">
+                <h3>訓導校外巡邏當值</h3>
+                <input type="date" id="outdoorDate" onchange="loadOutdoor()">
+                <div id="outdoorList"></div>
+            </div>
+        </div>
+
+        <div id="tab-saturday" class="hidden">
+            <div id="satAlert" class="alert hidden">
+                <strong>⚠️ 未出勤提醒</strong>
+                <div id="satMissing"></div>
+                <button class="btn warning" onclick="notifyMissing('saturday')">📱 WhatsApp 通知</button>
+            </div>
+            <div class="card">
+                <h3>星期六及學校假期當值</h3>
+                <input type="date" id="satDate" onchange="loadSaturday()">
+                <div id="satList"></div>
+            </div>
+        </div>
+
+        <div id="tab-exam" class="hidden">
+            <div class="card">
+                <h3>考試／試後活動</h3>
+                <select id="examType" onchange="loadExam()">
+                    <option value="firstExam">第一次考試當值</option>
+                    <option value="exam">第二次考試當值</option>
+                    <option value="postExam">試後活動當值</option>
+                </select>
+                <div id="examList"></div>
+            </div>
+        </div>
+
+        <div id="tab-special" class="hidden">
+            <div class="card">
+                <h3>特別活動日當值</h3>
+                <div id="specialList"></div>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="hidden">
+            <div class="card">
+                <h3>Google Sheet 連線</h3>
+                <p class="small">請貼上 Apps Script 部署後的網路應用程式網址（以 /exec 結尾）</p>
+                <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/...../exec">
+                <button class="btn" onclick="saveScriptUrl()">儲存連線網址</button>
+                <p class="small" id="syncStatus" style="margin-top:8px; color:#2e7d32;"></p>
+            </div>
+            <div class="card">
+                <h3>WhatsApp 通知設定 (CallMeBot)</h3>
+                <p class="small">1. 將 +34 644 45 70 57 加入聯絡人<br>2. 發送「I allow callmebot to send me messages」<br>3. 取得 API Key 後填入</p>
+                <input type="text" id="waPhone" placeholder="+852xxxxxxxx">
+                <input type="text" id="waApiKey" placeholder="API Key">
+                <button class="btn" onclick="saveSettings()">儲存設定</button>
+            </div>
+            <div class="card">
+                <h3>資料管理</h3>
+                <p class="small" style="margin-bottom:10px;">
+                    當值紀錄儲存在此瀏覽器的本機儲存空間（localStorage）及 Google Sheet（如已設定）。<br>
+                    建議定期匯出備份。
+                </p>
+                <button class="btn secondary" onclick="exportData()">匯出所有資料（需密碼）</button>
+                <button class="btn danger" onclick="clearAttendance()">清除出勤記錄</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>佛教沈香林紀念中學 · 2026/27 當值出勤系統</footer>
+
+    <script>
+        const STUDENTS = {"1A": [{"no": "1", "name": "陳雪琳"}, {"no": "2", "name": "陳映璇"}, {"no": "3", "name": "張菁芯"}, {"no": "4", "name": "張敏儀"}, {"no": "5", "name": "劉夢涵"}, {"no": "6", "name": "羅樂晴"}, {"no": "7", "name": "李芷瑤"}, {"no": "8", "name": "梁洛郗"}, {"no": "9", "name": "馬晞曈"}, {"no": "10", "name": "孫嘉晨"}, {"no": "11", "name": "王程"}, {"no": "12", "name": "黃采怩"}, {"no": "13", "name": "丘佩加"}, {"no": "14", "name": "楊穎霖"}, {"no": "15", "name": "余泳霖"}, {"no": "16", "name": "陳尚言"}, {"no": "17", "name": "陳英杰"}, {"no": "18", "name": "鄭子朗"}, {"no": "19", "name": "朱梓廷"}, {"no": "20", "name": "劉柏亨"}, {"no": "21", "name": "李銘洛"}, {"no": "22", "name": "李珀維"}, {"no": "23", "name": "李耀坤"}, {"no": "24", "name": "林軒泓"}, {"no": "25", "name": "文梓軒"}, {"no": "26", "name": "蕭逸謙"}, {"no": "27", "name": "鄧峻豪"}, {"no": "28", "name": "鄧子俊"}, {"no": "29", "name": "王洛宸"}, {"no": "30", "name": "黃以同"}, {"no": "31", "name": "胡琛"}, {"no": "32", "name": "余塏堯"}, {"no": "33", "name": "鍾泫楓"}], "1B": [{"no": "1", "name": "陳鍶萱"}, {"no": "2", "name": "陳紫悠"}, {"no": "3", "name": "張曉彤"}, {"no": "4", "name": "蔡芷珩"}, {"no": "5", "name": "郭漫稀"}, {"no": "6", "name": "郭蔚藍"}, {"no": "7", "name": "林梓澄"}, {"no": "8", "name": "李舒雅"}, {"no": "9", "name": "廖念慈"}, {"no": "10", "name": "吳卓洛"}, {"no": "11", "name": "饒語婷"}, {"no": "12", "name": "温惠迦"}, {"no": "13", "name": "王芷欣"}, {"no": "14", "name": "黃子瑜"}, {"no": "15", "name": "葉曉晴"}, {"no": "16", "name": "鄭海恩"}, {"no": "17", "name": "張浩康"}, {"no": "18", "name": "蔡永傑"}, {"no": "19", "name": "鍾嘉煒"}, {"no": "20", "name": "方嘉謙"}, {"no": "21", "name": "馮昱博"}, {"no": "22", "name": "李梓朗"}, {"no": "23", "name": "梁鎧鎽"}, {"no": "24", "name": "梁梓培"}, {"no": "25", "name": "李銘輝"}, {"no": "26", "name": "李思齊"}, {"no": "27", "name": "龍啟生"}, {"no": "28", "name": "吳彥辰"}, {"no": "30", "name": "陶卓熙"}, {"no": "31", "name": "曾舜"}, {"no": "32", "name": "王駿軒"}, {"no": "33", "name": "葉斐"}], "1C": [{"no": "1", "name": "柏芊彤"}, {"no": "2", "name": "陳慧"}, {"no": "3", "name": "陳睿妍"}, {"no": "4", "name": "張宇菲"}, {"no": "5", "name": "張逸晞"}, {"no": "6", "name": "方翠僑"}, {"no": "7", "name": "黎晞蕾"}, {"no": "8", "name": "劉卓如"}, {"no": "9", "name": "梁樂翹"}, {"no": "10", "name": "梁心喬"}, {"no": "11", "name": "梁芷悠"}, {"no": "12", "name": "屈歐荷"}, {"no": "13", "name": "司徒海晴"}, {"no": "14", "name": "杜衍柔"}, {"no": "15", "name": "謝翹楚"}, {"no": "16", "name": "畢安仁"}, {"no": "17", "name": "湛信犧"}, {"no": "18", "name": "鄭舜烺"}, {"no": "19", "name": "趙梓謙"}, {"no": "20", "name": "蔡承軒"}, {"no": "21", "name": "黃諾恆"}, {"no": "22", "name": "森文"}, {"no": "23", "name": "林則丞"}, {"no": "24", "name": "林俊宇"}, {"no": "25", "name": "林鈞慈"}, {"no": "26", "name": "勞梓桓"}, {"no": "27", "name": "李昊晉"}, {"no": "28", "name": "羅朗軒"}, {"no": "29", "name": "冼峻熙"}, {"no": "30", "name": "陳家輝"}, {"no": "31", "name": "曾湙森"}, {"no": "32", "name": "黃琛賢"}, {"no": "33", "name": "叶家明"}], "2A": [{"no": "1", "name": "陳祉彤"}, {"no": "2", "name": "周嘉洋"}, {"no": "3", "name": "鍾慧欣"}, {"no": "4", "name": "高莉雅"}, {"no": "5", "name": "何明希"}, {"no": "6", "name": "李志玲"}, {"no": "7", "name": "劉园姍"}, {"no": "8", "name": "羅晞彤"}, {"no": "9", "name": "莫雅馨"}, {"no": "10", "name": "魏慕儀"}, {"no": "11", "name": "董殷彤"}, {"no": "12", "name": "黃靖潼"}, {"no": "13", "name": "趙沛淇"}, {"no": "14", "name": "朱嘉怡"}, {"no": "15", "name": "陳俊鎧"}, {"no": "16", "name": "陳嘉浩"}, {"no": "17", "name": "陳致遠"}, {"no": "18", "name": "林晉浩"}, {"no": "19", "name": "林聰"}, {"no": "20", "name": "林思瀚"}, {"no": "21", "name": "梁卓晞"}, {"no": "22", "name": "羅皓藝"}, {"no": "23", "name": "吳逸熹"}, {"no": "24", "name": "蘇珈樂"}, {"no": "25", "name": "譚智軒"}, {"no": "26", "name": "譚俊亨"}, {"no": "27", "name": "譚天佑"}, {"no": "28", "name": "王駿"}, {"no": "29", "name": "楊子鵬"}, {"no": "30", "name": "鄭進知"}], "2B": [{"no": "1", "name": "陳沛怡"}, {"no": "2", "name": "馮梓晴"}, {"no": "3", "name": "李詠芯"}, {"no": "4", "name": "梁詩雨"}, {"no": "5", "name": "梁斯辰"}, {"no": "6", "name": "李永晴"}, {"no": "7", "name": "劉芯瑩"}, {"no": "8", "name": "羅紫菱"}, {"no": "9", "name": "麥曉蕎"}, {"no": "10", "name": "王鎧澄"}, {"no": "12", "name": "丘綽潁"}, {"no": "13", "name": "鄒詠潔"}, {"no": "14", "name": "趙逸熙"}, {"no": "15", "name": "朱梓僑"}, {"no": "16", "name": "鍾皓然"}, {"no": "17", "name": "黃啟軒"}, {"no": "18", "name": "郭靖"}, {"no": "19", "name": "林靖軒"}, {"no": "20", "name": "劉曉楠"}, {"no": "21", "name": "李炫樞"}, {"no": "22", "name": "文鍵誠"}, {"no": "23", "name": "彭子朗"}, {"no": "24", "name": "秦顥峰"}, {"no": "25", "name": "蘇文熙"}, {"no": "26", "name": "鄧永城"}, {"no": "27", "name": "王梓鋒"}, {"no": "28", "name": "黃望然"}, {"no": "29", "name": "胡展豪"}, {"no": "30", "name": "英峻"}, {"no": "31", "name": "余嘉熙"}, {"no": "32", "name": "鄭凱聰"}], "2C": [{"no": "1", "name": "歐陽孔穎"}, {"no": "2", "name": "陳思遙"}, {"no": "3", "name": "周嘉欣"}, {"no": "4", "name": "刁若媤"}, {"no": "5", "name": "方梓琪"}, {"no": "6", "name": "方梓璐"}, {"no": "7", "name": "黃藝欽"}, {"no": "8", "name": "梁雅敏"}, {"no": "9", "name": "邵紫瑩"}, {"no": "10", "name": "黃健橦"}, {"no": "11", "name": "黃汶蔚"}, {"no": "12", "name": "任寶兒"}, {"no": "13", "name": "葉曉璇"}, {"no": "14", "name": "余梓穎"}, {"no": "15", "name": "占墨"}, {"no": "16", "name": "劉注文"}, {"no": "17", "name": "陳柏均"}, {"no": "18", "name": "張柏賢"}, {"no": "19", "name": "洪偉景"}, {"no": "20", "name": "林柏豪"}, {"no": "21", "name": "林梓賢"}, {"no": "22", "name": "劉振軒"}, {"no": "23", "name": "李浩林"}, {"no": "24", "name": "劉子懌"}, {"no": "25", "name": "劉梓熠"}, {"no": "26", "name": "毛智銳"}, {"no": "27", "name": "莫家熙"}, {"no": "28", "name": "王銘裕"}, {"no": "29", "name": "楊政"}, {"no": "30", "name": "楊子浩"}, {"no": "31", "name": "劉心琪"}], "3A": [{"no": "1", "name": "陳佳碧"}, {"no": "2", "name": "趙恩熙"}, {"no": "3", "name": "黃女婷"}, {"no": "4", "name": "黎銥庭"}, {"no": "5", "name": "林穎瑤"}, {"no": "6", "name": "劉沄諾"}, {"no": "7", "name": "梁愷亭"}, {"no": "8", "name": "盧欣彤"}, {"no": "9", "name": "司徒永琳"}, {"no": "10", "name": "蕭希頤"}, {"no": "11", "name": "鄧穎嘉"}, {"no": "12", "name": "陳寶欣"}, {"no": "13", "name": "謝杺洳"}, {"no": "14", "name": "黃海晴"}, {"no": "15", "name": "嚴凱晴"}, {"no": "16", "name": "葉心僖"}, {"no": "17", "name": "趙婕妤"}, {"no": "18", "name": "陳熙中"}, {"no": "19", "name": "張啓俊"}, {"no": "20", "name": "張博淇"}, {"no": "21", "name": "周樂熙"}, {"no": "22", "name": "黎栢橋"}, {"no": "23", "name": "劉雄業"}, {"no": "24", "name": "李俊佑"}, {"no": "25", "name": "梁栩銘"}, {"no": "26", "name": "李焯樑"}, {"no": "27", "name": "羅超元"}, {"no": "28", "name": "施吉凱"}, {"no": "29", "name": "譚枝恆"}, {"no": "30", "name": "陶卓翹"}, {"no": "31", "name": "黃祺煒"}, {"no": "32", "name": "殷梓晉"}, {"no": "33", "name": "周子凌"}], "3B": [{"no": "1", "name": "陳佩詩"}, {"no": "2", "name": "陳詩淇"}, {"no": "3", "name": "張凱榣"}, {"no": "4", "name": "蔡塏玥"}, {"no": "5", "name": "謝雅妮"}, {"no": "6", "name": "郭梓琪"}, {"no": "7", "name": "郭芷若"}, {"no": "8", "name": "黎嘉瑩"}, {"no": "9", "name": "林儷瑤"}, {"no": "10", "name": "李巧意"}, {"no": "11", "name": "李昕嵐"}, {"no": "12", "name": "梁涴淇"}, {"no": "13", "name": "潘柔希"}, {"no": "14", "name": "蘇天悠"}, {"no": "15", "name": "蘇穎嵐"}, {"no": "16", "name": "鄧雪詠"}, {"no": "17", "name": "陳海晞"}, {"no": "18", "name": "陳俊廷"}, {"no": "19", "name": "張俊峰"}, {"no": "20", "name": "張俊軒"}, {"no": "21", "name": "張曉峯"}, {"no": "22", "name": "簡天朗"}, {"no": "23", "name": "劉其昀"}, {"no": "24", "name": "李柏僑"}, {"no": "25", "name": "林叡昇"}, {"no": "26", "name": "陸弘向"}, {"no": "27", "name": "麥家朗"}, {"no": "28", "name": "吳柏謙"}, {"no": "29", "name": "鄧灝軒"}, {"no": "30", "name": "謝旻樺"}, {"no": "31", "name": "甄子陽"}, {"no": "32", "name": "丘俊天"}, {"no": "33", "name": "游文浩"}], "3C": [{"no": "1", "name": "陳芷妍"}, {"no": "2", "name": "陳詠心"}, {"no": "3", "name": "陳育瑤"}, {"no": "4", "name": "陳南嘉"}, {"no": "5", "name": "張沁頤"}, {"no": "6", "name": "張恩琪"}, {"no": "7", "name": "顧子怡"}, {"no": "8", "name": "賈雨桐"}, {"no": "9", "name": "黎懂恩"}, {"no": "10", "name": "劉穎澄"}, {"no": "11", "name": "盧姵穎"}, {"no": "12", "name": "潘紫煊"}, {"no": "13", "name": "蘇梓炫"}, {"no": "14", "name": "孫海怡"}, {"no": "15", "name": "葉嘉霖"}, {"no": "16", "name": "馮璟宇"}, {"no": "17", "name": "江博賢"}, {"no": "18", "name": "林正鴻"}, {"no": "19", "name": "梁諾恒"}, {"no": "20", "name": "李俊彤"}, {"no": "21", "name": "李梓峰"}, {"no": "22", "name": "羅浚銘"}, {"no": "23", "name": "駱泓憬"}, {"no": "24", "name": "彭裕庭"}, {"no": "25", "name": "蘇雲意"}, {"no": "26", "name": "岑卓諾"}, {"no": "27", "name": "田峻瑋"}, {"no": "28", "name": "王子墨"}, {"no": "29", "name": "黃柏晞"}, {"no": "30", "name": "黃栢庭"}, {"no": "31", "name": "胡瑋誠"}, {"no": "32", "name": "張晋涵"}, {"no": "33", "name": "鄒坤儒"}], "4A": [{"no": "2", "name": "陳可儀"}, {"no": "3", "name": "周沅琪"}, {"no": "4", "name": "馮思婷"}, {"no": "5", "name": "洪億喜"}, {"no": "6", "name": "林雪晴"}, {"no": "7", "name": "梁梓琪"}, {"no": "8", "name": "梁樺敏"}, {"no": "9", "name": "潘慧恩"}, {"no": "10", "name": "唐家茵"}, {"no": "11", "name": "唐敏兒"}, {"no": "12", "name": "謝宛凝"}, {"no": "13", "name": "曾智盈"}, {"no": "14", "name": "陳梓軒"}, {"no": "15", "name": "陳梓灝"}, {"no": "16", "name": "鄭懿"}, {"no": "17", "name": "池明澤"}, {"no": "18", "name": "朱卓文"}, {"no": "19", "name": "馮文軒"}, {"no": "20", "name": "馮耀祖"}, {"no": "21", "name": "哈駿軒"}, {"no": "22", "name": "林源峰"}, {"no": "23", "name": "劉政豪"}, {"no": "24", "name": "劉灝瀚"}, {"no": "25", "name": "劉承軒"}, {"no": "26", "name": "吳澤同"}, {"no": "27", "name": "顏溢希"}, {"no": "28", "name": "潘浩東"}, {"no": "29", "name": "冼俊延"}, {"no": "30", "name": "蕭植陽"}, {"no": "31", "name": "胡錦豪"}, {"no": "32", "name": "胡韋迪"}, {"no": "33", "name": "張俊希"}], "4B": [{"no": "1", "name": "陳貝錡"}, {"no": "2", "name": "陳樺瑩"}, {"no": "3", "name": "周穎詩"}, {"no": "4", "name": "關沛怡"}, {"no": "5", "name": "郭詠恩"}, {"no": "7", "name": "盧嘉瑤"}, {"no": "8", "name": "巫冠誼"}, {"no": "9", "name": "孫雯"}, {"no": "10", "name": "唐家怡"}, {"no": "11", "name": "任喜兒"}, {"no": "12", "name": "袁思樺"}, {"no": "13", "name": "原詠睎"}, {"no": "14", "name": "翟傲迅"}, {"no": "15", "name": "陳樂恆"}, {"no": "16", "name": "鄭焯中"}, {"no": "17", "name": "鄭有軒"}, {"no": "18", "name": "范曉鋒"}, {"no": "19", "name": "何卓軒"}, {"no": "20", "name": "何梓龍"}, {"no": "21", "name": "郭家傑"}, {"no": "22", "name": "梁栢賢"}, {"no": "23", "name": "李耀森"}, {"no": "24", "name": "盧永逸"}, {"no": "25", "name": "馬頌睎"}, {"no": "26", "name": "馬啟航"}, {"no": "27", "name": "麥灝軒"}, {"no": "28", "name": "吳浩維"}, {"no": "29", "name": "邱敬熙"}, {"no": "30", "name": "石語萌"}, {"no": "31", "name": "鄧昊劻"}, {"no": "32", "name": "黃子穎"}, {"no": "33", "name": "胡棨茪"}], "4C": [{"no": "1", "name": "鄧穎莹"}, {"no": "2", "name": "黃詩涵"}, {"no": "3", "name": "鄺淑瑜"}, {"no": "4", "name": "李頌敏"}, {"no": "5", "name": "李詩情"}, {"no": "6", "name": "孟琬婷"}, {"no": "7", "name": "吳卓盈"}, {"no": "8", "name": "石芷清"}, {"no": "9", "name": "蕭梓翹"}, {"no": "10", "name": "蔡心怡"}, {"no": "12", "name": "趙恂樂"}, {"no": "13", "name": "區仲希"}, {"no": "14", "name": "陳榮恩"}, {"no": "15", "name": "張裕鋒"}, {"no": "16", "name": "趙熙裕"}, {"no": "17", "name": "馮敬賢"}, {"no": "18", "name": "霍永旭"}, {"no": "19", "name": "黃子睿"}, {"no": "20", "name": "郭俊希"}, {"no": "21", "name": "賴德嘉"}, {"no": "22", "name": "劉沛希"}, {"no": "23", "name": "李尚澤"}, {"no": "24", "name": "林楷竣"}, {"no": "25", "name": "毛宗尉"}, {"no": "26", "name": "莫家杰"}, {"no": "27", "name": "秦思成"}, {"no": "28", "name": "王子謙"}, {"no": "29", "name": "楊凱森"}, {"no": "30", "name": "楊庭東"}, {"no": "31", "name": "葉溢朗"}, {"no": "32", "name": "張炎汐"}], "5A": [{"no": "1", "name": "區淑媛"}, {"no": "2", "name": "周芷慧"}, {"no": "3", "name": "陳韻潔"}, {"no": "4", "name": "陳譽文"}, {"no": "5", "name": "徐佳倩"}, {"no": "6", "name": "鄺惠予"}, {"no": "7", "name": "李曉楹"}, {"no": "8", "name": "林俊希"}, {"no": "9", "name": "盧紫悠"}, {"no": "10", "name": "盧曉曼"}, {"no": "11", "name": "隋孜霖"}, {"no": "12", "name": "王阡霽"}, {"no": "13", "name": "丘巧兒"}, {"no": "14", "name": "陳賀嵐"}, {"no": "15", "name": "陳梓津"}, {"no": "16", "name": "張浩霆"}, {"no": "17", "name": "鄧子城"}, {"no": "18", "name": "何旭孝"}, {"no": "19", "name": "何梓焌"}, {"no": "20", "name": "何永杰"}, {"no": "21", "name": "黃正霖"}, {"no": "22", "name": "鄺焱華"}, {"no": "23", "name": "鄺浩堃"}, {"no": "24", "name": "雷錦鳴"}, {"no": "25", "name": "林逸朗"}, {"no": "26", "name": "陸世佑"}, {"no": "27", "name": "吳嘉晞"}, {"no": "28", "name": "曾浚軒"}, {"no": "29", "name": "黃天琛"}, {"no": "30", "name": "余俊傑"}], "5B": [{"no": "1", "name": "蔡依楠"}, {"no": "2", "name": "陳紀尤"}, {"no": "3", "name": "莊芷晴"}, {"no": "4", "name": "孔芊蔚"}, {"no": "5", "name": "黎瑜彤"}, {"no": "6", "name": "李嘉慧"}, {"no": "7", "name": "梁巧怡"}, {"no": "8", "name": "梁麗樺"}, {"no": "9", "name": "梁珮琳"}, {"no": "10", "name": "李雨芹"}, {"no": "11", "name": "莫舒堯"}, {"no": "12", "name": "毛芷瑤"}, {"no": "13", "name": "黃樂瑤"}, {"no": "14", "name": "黃雪殷"}, {"no": "15", "name": "吳姝琦"}, {"no": "16", "name": "曾鑫雅"}, {"no": "17", "name": "張煥笙"}, {"no": "18", "name": "曹樂謙"}, {"no": "19", "name": "德健安"}, {"no": "20", "name": "馮紹基"}, {"no": "21", "name": "何御正"}, {"no": "22", "name": "梁栢雄"}, {"no": "23", "name": "李子陽"}, {"no": "24", "name": "廖浩賢"}, {"no": "25", "name": "盧海峯"}, {"no": "26", "name": "麥樺軒"}, {"no": "27", "name": "吳奇峰"}, {"no": "28", "name": "潘卓龍"}, {"no": "29", "name": "王佳熙"}, {"no": "30", "name": "王灝龍"}, {"no": "31", "name": "王霆一"}, {"no": "32", "name": "余承謙"}], "5C": [{"no": "1", "name": "張天心"}, {"no": "2", "name": "陳垚穎"}, {"no": "3", "name": "黃子菏"}, {"no": "4", "name": "黃嘉怡"}, {"no": "5", "name": "馬可芝"}, {"no": "6", "name": "莫凱雯"}, {"no": "7", "name": "孫健欣"}, {"no": "8", "name": "戴伊彤"}, {"no": "9", "name": "吳迎鳳"}, {"no": "10", "name": "胡卓瑤"}, {"no": "11", "name": "楊宇晨"}, {"no": "12", "name": "葉靖"}, {"no": "13", "name": "余睆怡"}, {"no": "14", "name": "陳柏其"}, {"no": "15", "name": "張庭溱"}, {"no": "16", "name": "馮泓棟"}, {"no": "17", "name": "黃楚恒"}, {"no": "18", "name": "黃煦鈞"}, {"no": "19", "name": "賴益澤"}, {"no": "20", "name": "梁靖晞"}, {"no": "21", "name": "梁家銘"}, {"no": "22", "name": "李迪"}, {"no": "23", "name": "劉銘杰"}, {"no": "24", "name": "彭睿杰"}, {"no": "25", "name": "彭子佑"}, {"no": "26", "name": "覃睿軒"}, {"no": "27", "name": "孫沛然"}, {"no": "28", "name": "陶星潮"}, {"no": "29", "name": "鄭凱晉"}], "6A": [{"no": "1", "name": "陳霈橋"}, {"no": "2", "name": "陳怡"}, {"no": "3", "name": "張素菡"}, {"no": "4", "name": "蔡欣彤"}, {"no": "5", "name": "關梓潁"}, {"no": "6", "name": "林煜婷"}, {"no": "7", "name": "梁芷熒"}, {"no": "8", "name": "吳佩樺"}, {"no": "9", "name": "黃凱欣"}, {"no": "10", "name": "謝依樺"}, {"no": "11", "name": "楊焯然"}, {"no": "12", "name": "鄭俊謙"}, {"no": "13", "name": "招成博"}, {"no": "14", "name": "周海楠"}, {"no": "15", "name": "林晉樂"}, {"no": "16", "name": "劉家豪"}, {"no": "17", "name": "李諾言"}, {"no": "18", "name": "李嘉興"}, {"no": "19", "name": "黎杰榮"}, {"no": "20", "name": "李均杰"}, {"no": "21", "name": "梁政濤"}, {"no": "22", "name": "潘冠橋"}, {"no": "23", "name": "龎肇源"}, {"no": "24", "name": "戴政源"}, {"no": "25", "name": "温子淘"}, {"no": "26", "name": "王文昊"}, {"no": "27", "name": "楊沛霖"}], "6B": [{"no": "1", "name": "陳可萱"}, {"no": "2", "name": "鄧寶怡"}, {"no": "3", "name": "劉蘊瑤"}, {"no": "4", "name": "羅淑榆"}, {"no": "5", "name": "李頌橋"}, {"no": "6", "name": "梁琪琪"}, {"no": "7", "name": "呂佩兒"}, {"no": "8", "name": "莫可茹"}, {"no": "9", "name": "吳紫晴"}, {"no": "10", "name": "覃淑婷"}, {"no": "11", "name": "孫丁丁"}, {"no": "12", "name": "王文慧"}, {"no": "13", "name": "黃晞頤"}, {"no": "14", "name": "黃胤錚"}, {"no": "15", "name": "張圓星"}, {"no": "16", "name": "張晉軒"}, {"no": "17", "name": "蔡鎵浠"}, {"no": "18", "name": "蔡鉅濟"}, {"no": "19", "name": "馮錦佳"}, {"no": "20", "name": "關穎霖"}, {"no": "21", "name": "何卓謙"}, {"no": "22", "name": "簡銘均"}, {"no": "23", "name": "李國羽"}, {"no": "24", "name": "盧子健"}, {"no": "25", "name": "曾耀恆"}, {"no": "26", "name": "王寬程"}, {"no": "27", "name": "邱鐥瀧"}, {"no": "28", "name": "張智越"}], "6C": [{"no": "1", "name": "陳婥瑩"}, {"no": "2", "name": "陳詠琳"}, {"no": "3", "name": "陳暉"}, {"no": "4", "name": "招詠曦"}, {"no": "5", "name": "樊凱恩"}, {"no": "6", "name": "付鈺婷"}, {"no": "7", "name": "何凱兒"}, {"no": "8", "name": "何紫穎"}, {"no": "9", "name": "洪一然"}, {"no": "10", "name": "林鈫婧"}, {"no": "11", "name": "李懿雯"}, {"no": "12", "name": "林思彤"}, {"no": "14", "name": "涂心怡"}, {"no": "15", "name": "王梦鑫"}, {"no": "16", "name": "黃樂晴"}, {"no": "17", "name": "黃敏芝"}, {"no": "18", "name": "張怡霖"}, {"no": "19", "name": "鄭佳鑫"}, {"no": "20", "name": "朱婧曦"}, {"no": "21", "name": "區仲賢"}, {"no": "22", "name": "陳俊超"}, {"no": "23", "name": "朱浩然"}, {"no": "24", "name": "丁治棋"}, {"no": "25", "name": "關智滔"}, {"no": "26", "name": "蔣松旻"}, {"no": "27", "name": "李凱迪"}, {"no": "28", "name": "李鎔辰"}, {"no": "29", "name": "劉根宏"}, {"no": "30", "name": "薛禹楓"}, {"no": "31", "name": "姚澤恩"}]};
+
+        const DAY_MAP = {"2026-09-02": "A", "2026-09-03": "B", "2026-09-04": "C", "2026-09-07": "D", "2026-09-08": "E", "2026-09-09": "F", "2026-09-10": "A", "2026-09-11": "B", "2026-09-14": "C", "2026-09-15": "D", "2026-09-16": "E", "2026-09-17": "F", "2026-09-18": "A", "2026-09-21": "B", "2026-09-22": "C", "2026-09-23": "D", "2026-09-24": "E", "2026-09-25": "F", "2026-09-28": "A", "2026-09-29": "B", "2026-09-30": "C", "2026-10-05": "D", "2026-10-06": "E", "2026-10-07": "F", "2026-10-08": "A", "2026-10-09": "B", "2026-10-12": "C", "2026-10-13": "D", "2026-10-14": "E", "2026-10-15": "F", "2026-10-16": "A", "2026-10-20": "B", "2026-10-21": "C", "2026-10-22": "D", "2026-10-23": "E", "2026-10-26": "F", "2026-10-27": "A", "2026-10-28": "B", "2026-10-29": "C", "2026-10-30": "D", "2026-11-02": "E", "2026-11-03": "F", "2026-11-04": "A", "2026-11-05": "B", "2026-11-06": "C", "2026-11-09": "D", "2026-11-10": "E", "2026-11-11": "F", "2026-11-12": "A", "2026-11-13": "B", "2026-11-18": "C", "2026-11-19": "D", "2026-11-20": "E", "2026-11-23": "F", "2026-11-24": "A", "2026-11-25": "B", "2026-11-26": "C", "2026-11-27": "D", "2026-11-30": "E", "2026-12-01": "F", "2026-12-02": "A", "2026-12-03": "B", "2026-12-08": "C", "2026-12-09": "D", "2026-12-10": "E", "2026-12-11": "F", "2026-12-14": "A", "2026-12-15": "B", "2026-12-16": "C", "2026-12-17": "D", "2026-12-18": "E", "2026-12-21": "F", "2026-12-22": "A", "2027-01-04": "B", "2027-01-19": "C", "2027-01-20": "D", "2027-01-21": "E", "2027-01-22": "F", "2027-01-25": "A", "2027-01-26": "B", "2027-01-27": "C", "2027-01-28": "D", "2027-01-29": "E", "2027-02-01": "F", "2027-02-02": "A", "2027-02-03": "B", "2027-02-15": "C", "2027-02-16": "D", "2027-02-17": "E", "2027-02-18": "F", "2027-02-19": "A", "2027-02-22": "B", "2027-02-23": "C", "2027-02-24": "D", "2027-02-25": "E", "2027-02-26": "F", "2027-03-01": "A", "2027-03-02": "B", "2027-03-03": "C", "2027-03-04": "D", "2027-03-05": "E", "2027-03-08": "F", "2027-03-09": "A", "2027-03-10": "B", "2027-03-11": "C", "2027-03-12": "D", "2027-03-15": "E", "2027-03-16": "F", "2027-03-17": "A", "2027-03-18": "B", "2027-03-22": "C", "2027-03-23": "D", "2027-04-06": "E", "2027-04-07": "F", "2027-04-08": "A", "2027-04-09": "B", "2027-04-12": "C", "2027-04-13": "D", "2027-04-14": "E", "2027-04-15": "F", "2027-04-16": "A", "2027-04-19": "B", "2027-04-26": "C", "2027-04-27": "D", "2027-04-28": "E", "2027-04-29": "F", "2027-04-30": "A", "2027-05-03": "B", "2027-05-04": "C", "2027-05-05": "D", "2027-05-06": "E", "2027-05-07": "F", "2027-05-10": "A", "2027-05-18": "B", "2027-05-19": "C", "2027-05-20": "D", "2027-05-24": "E", "2027-05-28": "F", "2027-05-31": "A", "2027-06-01": "B", "2027-06-02": "C", "2027-06-03": "D", "2027-06-04": "E", "2027-06-07": "F", "2027-06-08": "A"};
+
+        const DEFAULT_PASSWORD = "bsc24377000";
+
+        const DUTY_DATA = {
+            dayAF: {
+                positions: [
+                    { timeMonThu: "07:45–08:15", timeFri: "07:45–08:15", start: "07:45", pos: "正門及地下", teachers: {A:"李詠珊", B:"關婉芬", C:"張淑萍", D:"黃松安", E:"賴詠琴", F:"孫芷珊"} },
+                    { timeMonThu: "07:45–08:15", timeFri: "07:45–08:15", start: "07:45", pos: "校服儀容", teachers: {A:"謝盈", B:"劉曉聰", C:"劉志鋒", D:"周華", E:"陳建達", F:"張美娥"} },
+                    { timeMonThu: "07:45–08:15", timeFri: "07:45–08:15", start: "07:45", pos: "二樓至三樓", teachers: {A:"林詩琦", B:"盧志南", C:"曾菀嫈", D:"葉蔭球", E:"張定邦", F:"關婉芬"} },
+                    { timeMonThu: "07:45–08:15", timeFri: "07:45–08:15", start: "07:45", pos: "四樓至五樓", teachers: {A:"高山山", B:"孫芷珊", C:"謝偉強", D:"張淑萍", E:"何嘉琪", F:"林菀詩"} },
+                    { timeMonThu: "07:55–08:10", timeFri: "07:55–08:10", start: "07:55", pos: "圖書館", teachers: {A:"黃國權", B:"黃國權", C:"黃國權", D:"黃國權", E:"黃國權", F:"黃國權"} },
+                    { timeMonThu: "08:10–08:30", timeFri: "08:10–08:30", start: "08:10", pos: "上午遲到", teachers: {A:"劉志鋒", B:"張美娥", C:"陳建達", D:"劉曉聰", E:"周華", F:"劉曉聰"} },
+                    { timeMonThu: "09:45–10:05", timeFri: "09:25–09:40", start: "09:45", pos: "地下（小息）", teachers: {A:"梁燕峰", B:"林詩琦", C:"許朗", D:"黃樂心", E:"劉思雅", F:"鮑婉君"} },
+                    { timeMonThu: "09:45–10:05", timeFri: "09:25–09:40", start: "09:45", pos: "二樓至三樓（小息）", teachers: {A:"徐建邦", B:"符芷琳", C:"黃駿賢", D:"丁曉蓉", E:"莊雅璇", F:"謝文瀚"} },
+                    { timeMonThu: "09:45–10:05", timeFri: "09:25–09:40", start: "09:45", pos: "四樓至五樓（小息）", teachers: {A:"林菀詩", B:"黃樂心", C:"莊雅璇", D:"林詩琦", E:"簡文輝", F:"鄭穎詩"} },
+                    { timeMonThu: "11:15–11:25", timeFri: "10:30–10:40", start: "11:15", pos: "地下（小息）", teachers: {A:"李嘉希", B:"林菀詩", C:"李嘉希", D:"莊雅璇", E:"楊秋燕", F:"關智恒"} },
+                    { timeMonThu: "11:15–11:25", timeFri: "10:30–10:40", start: "11:15", pos: "二樓至三樓（小息）", teachers: {A:"葉蔭球", B:"楊秋燕", C:"俞家歡", D:"梁燕峰", E:"李嘉希", F:"劉思雅"} },
+                    { timeMonThu: "11:15–11:25", timeFri: "10:30–10:40", start: "11:15", pos: "四樓至五樓（小息）", teachers: {A:"簡文輝", B:"鮑婉君", C:"楊秋燕", D:"馬寶珊", E:"謝文瀚", F:"徐建邦"} },
+                    { timeMonThu: "", timeFri: "11:30–11:40", start: "11:30", pos: "地下（訓導組）", teachers: {A:"訓導委員會", B:"訓導委員會", C:"訓導委員會", D:"訓導委員會", E:"訓導委員會", F:"訓導委員會"} },
+                    { timeMonThu: "", timeFri: "11:30–11:40", start: "11:30", pos: "二樓至三樓（訓導組）", teachers: {A:"訓導委員會", B:"訓導委員會", C:"訓導委員會", D:"訓導委員會", E:"訓導委員會", F:"訓導委員會"} },
+                    { timeMonThu: "", timeFri: "11:30–11:40", start: "11:30", pos: "四樓至五樓（訓導組）", teachers: {A:"訓導委員會", B:"訓導委員會", C:"訓導委員會", D:"訓導委員會", E:"訓導委員會", F:"訓導委員會"} },
+                    { timeMonThu: "12:40–13:30", timeFri: "13:00–13:50", start: "12:40", pos: "D&T Hub", teachers: {A:"賴詠琴", B:"何嘉琪", C:"黃松安", D:"李詠珊", E:"林嘉源", F:"劉曉聰"} },
+                    { timeMonThu: "12:40–13:05", timeFri: "13:00–13:25", start: "12:40", pos: "S1留校午膳", teachers: {A:"盧俊明／何秋兒", B:"李詠斯／何秋兒", C:"黃婉儀／AT NET", D:"高樂詩／AT NET", E:"高樂詩／黃婉儀", F:"盧俊明／李詠斯"} },
+                    { timeMonThu: "13:20–13:40", timeFri: "13:45–14:05", start: "13:20", pos: "正門及地下（午膳）", teachers: {A:"俞家歡", B:"謝偉強", C:"盧志南", D:"符芷琳", E:"黃駿賢", F:"梁冬妤"} },
+                    { timeMonThu: "13:20–13:40", timeFri: "13:45–14:05", start: "13:20", pos: "二樓至三樓（午膳）", teachers: {A:"鄭穎詩", B:"毛子山", C:"鮑婉君", D:"許朗", E:"盧志南", F:"馬寶珊"} },
+                    { timeMonThu: "13:20–13:40", timeFri: "13:45–14:05", start: "13:20", pos: "四樓至五樓（午膳）", teachers: {A:"丁曉蓉", B:"關智恒", C:"梁冬妤", D:"謝偉強", E:"葉蔭球", F:"毛子山"} },
+                    { timeMonThu: "13:35–13:50", timeFri: "14:00–14:15", start: "13:35", pos: "下午遲到", teachers: {A:"謝盈", B:"劉志鋒", C:"劉曉聰", D:"陳建達", E:"張美娥", F:"周華"} },
+                    { timeMonThu: "15:45–16:00", timeFri: "", start: "15:45", pos: "二至五樓清場", teachers: {A:"張定邦", B:"林嘉源", C:"高山山", D:"曾菀嫈", E:"郭紹洋", F:"黃俊煒"} },
+                    { timeMonThu: "17:45–18:00", timeFri: "", start: "17:45", pos: "放學清場", teachers: {A:"張定邦", B:"林嘉源", C:"高山山", D:"曾菀嫈", E:"郭紹洋", F:"黃俊煒"} }
+                ]
+            },
+            patrol: {
+                periods: [
+                    { period: "第一節 (08:35-09:45)", start: "08:35", teachers: {A:"謝偉強", B:"張美娥", C:"陳建達", D:"周華", E:"陳建達", F:"謝盈"} },
+                    { period: "第二節 (10:05-11:15)", start: "10:05", teachers: {A:"劉曉聰", B:"謝盈", C:"張美娥", D:"劉志鋒", E:"黃國權", F:"郭紹洋"} },
+                    { period: "第三節 (11:25-12:35)", start: "11:25", teachers: {A:"黃俊偉", B:"梁燕峰", C:"周華", D:"梁燕峰", E:"謝偉強", F:"劉曉聰"} },
+                    { period: "第四節 (13:45-15:30)", start: "13:45", teachers: {A:"郭紹洋", B:"劉志鋒", C:"黃國權", D:"劉曉聰", E:"黃俊偉", F:"黃國權"} }
+                ]
+            },
+            outdoor: [
+                {date:"2026-10-09", t1:"周華", t2:"張美娥"},
+                {date:"2026-10-16", t1:"謝盈", t2:"劉志鋒"},
+                {date:"2026-10-23", t1:"劉曉聰", t2:"陳建達"},
+                {date:"2026-10-30", t1:"周華", t2:"張美娥"},
+                {date:"2026-11-06", t1:"謝盈", t2:"劉志鋒"},
+                {date:"2026-11-13", t1:"劉曉聰", t2:"陳建達"},
+                {date:"2026-11-20", t1:"周華", t2:"張美娥"},
+                {date:"2026-11-27", t1:"謝盈", t2:"劉志鋒"},
+                {date:"2026-12-11", t1:"劉曉聰", t2:"陳建達"},
+                {date:"2026-12-18", t1:"周華", t2:"張美娥"},
+                {date:"2026-12-23", t1:"謝盈", t2:"劉志鋒"},
+                {date:"2027-01-08", t1:"劉曉聰", t2:"陳建達"},
+                {date:"2027-01-15", t1:"周華", t2:"張美娥"},
+                {date:"2027-01-22", t1:"謝盈", t2:"劉志鋒"},
+                {date:"2027-01-29", t1:"劉曉聰", t2:"陳建達"},
+                {date:"2027-02-03", t1:"周華", t2:"張美娥"},
+                {date:"2027-02-19", t1:"謝盈", t2:"劉志鋒"},
+                {date:"2027-02-26", t1:"劉曉聰", t2:"陳建達"},
+                {date:"2027-03-05", t1:"周華", t2:"張美娥"},
+                {date:"2027-03-12", t1:"謝盈", t2:"劉志鋒"},
+                {date:"2027-03-23", t1:"劉曉聰", t2:"陳建達"},
+                {date:"2027-04-09", t1:"周華", t2:"張美娥"},
+                {date:"2027-04-16", t1:"謝盈", t2:"劉志鋒"},
+                {date:"2027-04-30", t1:"周華", t2:"張美娥"},
+                {date:"2027-05-07", t1:"謝盈", t2:"劉志鋒"},
+                {date:"2027-05-11", t1:"劉曉聰", t2:"陳建達"},
+                {date:"2027-05-21", t1:"周華", t2:"張美娥"},
+                {date:"2027-05-28", t1:"謝盈", t2:"劉志鋒"},
+                {date:"2027-06-04", t1:"劉曉聰", t2:"陳建達"}
+            ],
+            saturday: [
+                {date:"2026-09-05", teacher:"林詩琦"}, {date:"2026-09-12", teacher:"張定邦"}, {date:"2026-09-19", teacher:"謝偉強"},
+                {date:"2026-10-03", teacher:"簡文輝"}, {date:"2026-10-10", teacher:"葉蔭球"}, {date:"2026-10-17", teacher:"黃國權"},
+                {date:"2026-10-24", teacher:"關婉芬"}, {date:"2026-10-31", teacher:"曾菀嫈"}, {date:"2026-11-07", teacher:"黃俊煒"},
+                {date:"2026-11-14", teacher:"高山山"}, {date:"2026-11-21", teacher:"曾菀嫈"}, {date:"2026-11-28", teacher:"李詠珊"},
+                {date:"2026-12-12", teacher:"孫芷珊"}, {date:"2026-12-19", teacher:"林嘉源"}, {date:"2027-01-16", teacher:"謝偉強"},
+                {date:"2027-03-06", teacher:"李詠珊"}, {date:"2027-04-10", teacher:"孫芷珊"}, {date:"2027-05-08", teacher:"郭紹洋"},
+                {date:"2027-06-05", teacher:"郭紹洋"}, {date:"2027-07-03", teacher:"黃國權"}, {date:"2027-07-10", teacher:"周華"}
+            ],
+            firstExam: [
+                {date:"2027-01-05", teacher:"劉曉聰"}, {date:"2027-01-06", teacher:"黃俊煒"}, {date:"2027-01-07", teacher:"孫芷珊"},
+                {date:"2027-01-08", teacher:"曾菀嫈"}, {date:"2027-01-11", teacher:"賴詠琴"}, {date:"2027-01-12", teacher:"黃松安"},
+                {date:"2027-01-13", teacher:"何嘉琪"}, {date:"2027-01-14", teacher:"張淑萍"}, {date:"2027-01-15", teacher:"張定邦"},
+                {date:"2027-01-18", teacher:"高山山"}
+            ],
+            exam: [
+                {date:"2027-06-10", teacher:"賴詠琴"}, {date:"2027-06-11", teacher:"黃松安"}, {date:"2027-06-14", teacher:"何嘉琪"},
+                {date:"2027-06-15", teacher:"張淑萍"}, {date:"2027-06-16", teacher:"張定邦"}, {date:"2027-06-17", teacher:"高山山"},
+                {date:"2027-06-18", teacher:"郭紹洋"}, {date:"2027-06-21", teacher:"關婉芬"}, {date:"2027-06-22", teacher:"李詠珊"},
+                {date:"2027-06-23", teacher:"林嘉源"}, {date:"2027-06-24", teacher:"劉曉聰"}, {date:"2027-06-25", teacher:"黃俊煒"}
+            ],
+            postExam: [
+                {date:"2027-06-28", teacher:"孫芷珊"}, {date:"2027-06-29", teacher:"曾菀嫈"}, {date:"2027-06-30", teacher:"賴詠琴"},
+                {date:"2027-07-02", teacher:"黃松安"}, {date:"2027-07-05", teacher:"何嘉琪"}, {date:"2027-07-06", teacher:"張淑萍"},
+                {date:"2027-07-07", teacher:"張定邦"}, {date:"2027-07-08", teacher:"高山山"}, {date:"2027-07-09", teacher:"郭紹洋"},
+                {date:"2027-07-12", teacher:"關婉芬"}, {date:"2027-07-13", teacher:"李詠珊"}, {date:"2027-07-14", teacher:"林嘉源"}
+            ],
+            special: [
+                {date:"2026-09-01", event:"開學日／校長信息", teacher:"賴詠琴"},
+                {date:"2026-10-23", event:"中一、中二家長晚會", teacher:"黃松安"},
+                {date:"2026-11-13", event:"高桌晚宴", teacher:"高山山"},
+                {date:"2026-11-16", event:"旅行日", teacher:"張淑萍"},
+                {date:"2026-12-05", event:"資訊日", teacher:"張定邦"},
+                {date:"2026-12-11", event:"中五、中六家長晚會", teacher:"李詠珊"},
+                {date:"2026-12-23", event:"冬至聯歡日", teacher:"郭紹洋"},
+                {date:"2027-02-27", event:"中一至中五家長日", teacher:"關婉芬"},
+                {date:"2027-03-20", event:"AI 咒語頒獎禮", teacher:"何嘉琪"},
+                {date:"2027-05-21", event:"中六畢業禮", teacher:"賴詠琴"}
+            ]
+        };
+
+        let appData = {
+            password: DEFAULT_PASSWORD,
+            adminUnlockPassword: "admin2026",
+            isAdminUnlocked: false,
+            attendance: {},
+            overrides: {},
+            notified: {},
+            violations: {},
+            waPhone: "",
+            waApiKey: ""
+        };
+        let tempMarks = {};
+        let lockedKeys = {};
+
+        localStorage.removeItem("dutyScriptUrl");
+        localStorage.removeItem("dutyScriptUrl"); let SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYgjvhB2X_8Hyyv-aMurnGvZXQqRjnm5eEGhXKvWqmqvyh0-bXivS1aNpMHLVdNne4/exec";
+
+        function saveScriptUrl() {
+            SCRIPT_URL = document.getElementById("scriptUrl").value.trim();
+            localStorage.setItem("dutyScriptUrl", SCRIPT_URL);
+            document.getElementById("syncStatus").textContent = "已儲存連線網址";
+            loadFromSheet();
+        }
+
+        function loadAppData() {
+            document.getElementById("scriptUrl").value = SCRIPT_URL;
+            // Always load from localStorage first
+            const s = localStorage.getItem("schoolDuty2026v5");
+            if (s) {
+                try {
+                    const saved = JSON.parse(s);
+                    appData = {...appData, ...saved};
+                } catch(e) {}
+            }
+            // Then try to sync from sheet
+            if (SCRIPT_URL) {
+                loadFromSheet();
+            }
+        }
+
+        function loadFromSheet() {
+            if (!SCRIPT_URL) return;
+            document.getElementById("syncStatus").textContent = "正在從 Google Sheet 讀取...";
+            fetch(SCRIPT_URL + "?action=load", {redirect: "follow"})
+                .then(r => {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
+                    return r.json();
+                })
+                .then(data => {
+                    // Only update if sheet has data
+                    if (data.attendance) {
+                        appData.attendance = data.attendance;
+                    }
+                    if (data.overrides && Object.keys(data.overrides).length > 0) {
+                        appData.overrides = {...appData.overrides, ...data.overrides};
+                    }
+                    if (data.notified && Object.keys(data.notified).length > 0) {
+                        appData.notified = {...appData.notified, ...data.notified};
+                    }
+                    document.getElementById("syncStatus").textContent = "已從 Google Sheet 載入最新紀錄";
+                    refreshCurrent();
+                    checkLateDuties();
+
+                })
+                .catch(err => {
+                    document.getElementById("syncStatus").textContent = "讀取失敗，請檢查網址";
+                    console.error(err);
+                });
+        }
+
+        function saveAppData() {
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            if (!SCRIPT_URL) return;
+            
+            try {
+                const teachers = {};
+                const timeSlots = {};
+                const date = document.getElementById("dayafDate")?.value || "";
+                const day = document.getElementById("dayafDay")?.value || "";
+                
+                if (DUTY_DATA && DUTY_DATA.dayAF && DUTY_DATA.dayAF.positions && date && day) {
+                    DUTY_DATA.dayAF.positions.forEach(d => {
+                        const key = `dayaf_${date}_${day}_${d.pos}`;
+                        teachers[key] = (appData.overrides && appData.overrides[key]) || (d.teachers && d.teachers[day]) || "";
+                        timeSlots[key] = d.timeMonThu || d.timeFri || "";
+                    });
+                }
+                
+                console.log("Saving to:", SCRIPT_URL);
+                console.log("Data:", JSON.stringify({attendance: appData.attendance}).substring(0, 200));
+                fetch(SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify({
+                        action: "save",
+                        attendance: appData.attendance || {},
+                        overrides: appData.overrides || {},
+                        notified: appData.notified || {},
+                        violations: appData.violations || {},
+                        teachers: teachers,
+                        timeSlots: timeSlots
+                    })
+                }).catch(() => {});
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function checkPassword() {
+            const input = document.getElementById("adminPass").value;
+            if (input === appData.password) {
+                appData.isAdminUnlocked = false;
+                document.getElementById("passwordGate").classList.add("hidden");
+                document.getElementById("mainApp").classList.remove("hidden");
+                init();
+            } else if (input === appData.adminUnlockPassword) {
+                appData.isAdminUnlocked = true;
+                document.getElementById("passwordGate").classList.add("hidden");
+                document.getElementById("mainApp").classList.remove("hidden");
+                init();
+                alert("已使用管理員密碼登入，可修改任何日期的紀錄");
+            } else {
+                alert("密碼錯誤");
+            }
+        }
+
+        function init() {
+            // Show settings tab for admin
+            const settingsTab = document.getElementById("settingsTab");
+            if (settingsTab) {
+                if (appData.isAdminUnlocked) {
+                    settingsTab.style.display = "inline-block";
+                    settingsTab.style.pointerEvents = "auto";
+                } else {
+                    settingsTab.style.display = "none";
+                }
+            }
+            const now = new Date();
+            const hkTime = now.toLocaleString("zh-Hant-HK", { timeZone: "Asia/Hong_Kong", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+            const today = now.toLocaleDateString("en-CA", { timeZone: "Asia/Hong_Kong" });
+            document.getElementById("currentDate").textContent = hkTime;
+            document.getElementById("dayafDate").value = today;
+            if (!appData.isAdminUnlocked) {
+                ["dayafDate","patrolDate","outdoorDate","satDate"].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.min = today;
+                        el.max = today;
+                    }
+                });
+            }
+            document.getElementById("patrolDate").value = today;
+            document.getElementById("outdoorDate").value = today;
+            document.getElementById("satDate").value = today;
+            document.getElementById("waPhone").value = appData.waPhone || "";
+            document.getElementById("waApiKey").value = appData.waApiKey || "";
+            loadDayAF();
+            loadPatrol();
+            loadOutdoor();
+            loadSaturday();
+            loadExam();
+            loadSpecial();
+            checkLateDuties();
+
+            setInterval(checkLateDuties, 60000);
+        }
+
+        function switchTab(tab) {
+            if (tab === "settings" && !appData.isAdminUnlocked) {
+                alert("一般同事不能進入設定");
+                return;
+            }
+            document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+            event.target.classList.add("active");
+            document.querySelectorAll("[id^='tab-']").forEach(el => el.classList.add("hidden"));
+            document.getElementById("tab-" + tab).classList.remove("hidden");
+        }
+
+        function getOverrideKey(type, date, day, pos) {
+            return `${type}_${date}_${day || ''}_${pos}`;
+        }
+        function getTeacher(type, date, day, pos, original) {
+            const key = getOverrideKey(type, date, day, pos);
+            return appData.overrides[key] || original;
+        }
+        function setOverride(type, date, day, pos, newName) {
+            const key = getOverrideKey(type, date, day, pos);
+            if (newName && newName.trim()) {
+                appData.overrides[key] = newName.trim();
+            } else {
+                delete appData.overrides[key];
+            }
+            saveAppData();
+        }
+
+        function getStatus(key) {
+            const rec = tempMarks[key] || appData.attendance[key];
+            if (!rec) return "pending";
+            return typeof rec === "string" ? rec : rec.status;
+        }
+        function getSavedTime(key) {
+            const rec = appData.attendance[key];
+            if (rec && typeof rec === "object" && rec.savedAt) {
+                return new Date(rec.savedAt).toLocaleTimeString("zh-Hant", {hour:"2-digit", minute:"2-digit"});
+            }
+            return "";
+        }
+        function shouldLock(key, date, timeRange) {
+            if (appData.isAdminUnlocked) return false;
+            if (lockedKeys[key]) return true;
+            const rec = appData.attendance && appData.attendance[key];
+            const saved = rec && rec.savedAt;
+            const pastEnd = isPastEndTime(date, timeRange);
+            return !!(saved || pastEnd);
+        }
+
+        function setTempStatus(key, status) {
+            if (!appData.isAdminUnlocked && appData.attendance[key] && appData.attendance[key].savedAt) {
+                alert("此紀錄已儲存，不能再修改。如需修改請使用管理員密碼重新登入。");
+                return;
+            }
+            tempMarks[key] = status;
+            refreshCurrent();
+        }
+        function saveMarks() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString("zh-Hant-HK", {year:"numeric", month:"2-digit", day:"2-digit"});
+            const timeStr = now.toLocaleTimeString("zh-Hant-HK", {hour:"2-digit", minute:"2-digit"});
+            alert("已於 " + dateStr + " " + timeStr + " 儲存");
+            if (!appData.isAdminUnlocked) {
+                const today = new Date().toLocaleDateString("en-CA", {timeZone: "Asia/Hong_Kong"});
+                const dateIds = ["dayafDate", "patrolDate", "outdoorDate", "satDate", "examDate", "specialDate"];
+                let currentDate = today;
+                for (const id of dateIds) {
+                    const el = document.getElementById(id);
+                    if (el && el.value && !document.getElementById("tab-" + id.replace("Date",""))?.classList.contains("hidden")) {
+                        currentDate = el.value;
+                        break;
+                    }
+                }
+                if (currentDate !== today) {
+                    alert("只允許記錄今天的出勤。如需修改其他日期，請使用管理員密碼重新登入。");
+                    return;
+                }
+            }
+            const saveTimestamp = new Date().toISOString();
+            for (const [key, status] of Object.entries(tempMarks)) {
+                if (!appData.isAdminUnlocked && appData.attendance[key] && appData.attendance[key].savedAt) {
+                    continue;
+                }
+                appData.attendance[key] = { status: status, savedAt: saveTimestamp };
+                if (!appData.isAdminUnlocked) {
+                    lockedKeys[key] = true;
+                }
+            }
+            tempMarks = {};
+            saveAppData();
+            // Reload from storage to ensure data is fresh
+            const s = localStorage.getItem("schoolDuty2026v5");
+            if (s) {
+                const saved = JSON.parse(s);
+                appData.attendance = saved.attendance || {};
+            }
+            refreshCurrent();
+        }
+
+        function refreshCurrent() {
+            if (!document.getElementById("tab-dayaf").classList.contains("hidden")) loadDayAF();
+            if (!document.getElementById("tab-patrol").classList.contains("hidden")) loadPatrol();
+            if (!document.getElementById("tab-outdoor").classList.contains("hidden")) loadOutdoor();
+            if (!document.getElementById("tab-saturday").classList.contains("hidden")) loadSaturday();
+            if (!document.getElementById("tab-exam").classList.contains("hidden")) loadExam();
+            if (!document.getElementById("tab-special").classList.contains("hidden")) loadSpecial();
+        }
+
+        function isPastEndTime(date, timeRange) {
+            if (!timeRange || !date) return false;
+            const parts = timeRange.split("–");
+            if (parts.length < 2) return false;
+            const endTime = parts[1].trim();
+            const now = new Date();
+            const [h, m] = endTime.split(":").map(Number);
+            const dutyEnd = new Date(date + "T" + endTime + ":00");
+            const deadline = new Date(dutyEnd.getTime() + 5 * 60 * 1000);
+            return now > deadline;
+        }
+
+        function isBeforeStartTime(date, timeRange) {
+            if (!timeRange || !date) return false;
+            const parts = timeRange.split("–");
+            if (parts.length < 2) return false;
+            const startTime = parts[0].trim();
+            const now = new Date();
+            const dutyStart = new Date(date + "T" + startTime + ":00");
+            return now < dutyStart;
+        }
+
+        function isOverdue(date, startTime) {
+            if (!startTime) return false;
+            const now = new Date();
+            const [h, m] = startTime.split(":").map(Number);
+            const dutyStart = new Date(date + "T" + startTime + ":00");
+            const deadline = new Date(dutyStart.getTime() + 5 * 60 * 1000);
+            return now > deadline;
+        }
+
+        function checkLateDuties() {
+            const today = new Date().toISOString().split("T")[0];
+            let lateList = [];
+
+            // Day A-F
+            const day = document.getElementById("daySelect") ? document.getElementById("daySelect").value : "A";
+            DUTY_DATA.dayAF.positions.forEach(item => {
+                const original = item.teachers[day];
+                if (!original) return;
+                const teacher = getTeacher("dayaf", today, day, item.pos, original);
+                const key = `dayaf_${today}_${day}_${item.pos}`;
+                const status = getStatus(key);
+                if ((status === "pending" || status === "absent") && isOverdue(today, item.start)) {
+                    const nKey = "notified_" + key;
+                    if (!appData.notified[nKey]) {
+                        lateList.push(`${teacher}（${item.pos}，開始 ${item.start}）`);
+                        appData.notified[nKey] = true;
+                    }
+                }
+            });
+
+            if (lateList.length && appData.waPhone && appData.waApiKey) {
+                const msg = encodeURIComponent(`【當值遲到提醒】\n以下同事在當值開始5分鐘後仍未儲存出勤：\n${lateList.map(m=>"• "+m).join("\n")}`);
+                const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(appData.waPhone)}&text=${msg}&apikey=${appData.waApiKey}`;
+                fetch(url).then(() => {
+                    saveAppData();
+                }).catch(() => {});
+            } else if (lateList.length) {
+                saveAppData();
+            }
+        }
+
+        function setViolation(key, index, field, value) {
+            if (!appData.violations) appData.violations = {};
+            if (!Array.isArray(appData.violations[key])) appData.violations[key] = [];
+            if (!appData.violations[key][index]) appData.violations[key][index] = {type:"", detail:""};
+            appData.violations[key][index][field] = value;
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+        }
+        function toggleOtherInput(select) {
+            const container = select.parentElement;
+            let otherInput = container.querySelector(".other-input");
+            if (select.value === "其他輕微違規事項") {
+                if (!otherInput) {
+                    otherInput = document.createElement("input");
+                    otherInput.type = "text";
+                    otherInput.className = "other-input";
+                    otherInput.placeholder = "請輸入違規事項";
+                    otherInput.style.cssText = "padding:4px; border:1px solid #FFCC80; border-radius:4px; width:100%; margin-top:4px;";
+                    otherInput.onchange = function() {
+                        const key = decodeURIComponent(select.dataset.key);
+                        const idx = parseInt(select.dataset.idx);
+                        if (appData.violations && appData.violations[key] && appData.violations[key][idx]) {
+                            appData.violations[key][idx].other = this.value;
+                            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+                        }
+                    };
+                    container.appendChild(otherInput);
+                }
+                otherInput.style.display = "block";
+            } else if (otherInput) {
+                otherInput.style.display = "none";
+            }
+        }
+
+        function filterStudents(classSelect) {
+            const cls = classSelect.value;
+            const studentSelect = classSelect.parentElement.querySelector(".student-select");
+            if (!studentSelect) return;
+            studentSelect.innerHTML = '<option value="">選擇學生</option>';
+            if (cls && typeof STUDENTS !== "undefined" && STUDENTS[cls]) {
+                STUDENTS[cls].forEach(s => {
+                    const opt = document.createElement("option");
+                    opt.value = cls + " " + s.no + " " + s.name;
+                    opt.textContent = s.no + " " + s.name;
+                    studentSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function addViolationByIndex(btn) {
+            const dateEl = document.getElementById("dayafDate");
+            const dayEl = document.getElementById("daySelect");
+            if (!dateEl || !dayEl) { alert("請先選擇日期"); return; }
+            const date = dateEl.value;
+            const day = dayEl.value;
+            if (!date || !day) { alert("請先選擇日期和 Day"); return; }
+            const idx = parseInt(btn.getAttribute("data-idx"));
+            const item = DUTY_DATA.dayAF.positions[idx];
+            if (!item) { alert("找不到崗位"); return; }
+            const key = `dayaf_${date}_${day}_${item.pos}`;
+            if (!appData.violations) appData.violations = {};
+            if (!Array.isArray(appData.violations[key])) appData.violations[key] = [];
+            const newIdx = appData.violations[key].length;
+            appData.violations[key].push({type:"", detail:""});
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            
+            // Directly add to DOM instead of full refresh
+            const list = btn.closest(".duty-info").querySelector(".vlist");
+            if (list) {
+                const ek = encodeURIComponent(key);
+                const div = document.createElement("div");
+                div.style.cssText = "margin-bottom:8px; padding:6px; background:#fff; border-radius:4px;";
+                div.innerHTML = `
+                    <div style="display:flex; gap:4px; align-items:center; margin-bottom:4px;">
+                        <select onchange="filterStudents(this)" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; width:60px; font-size:13px;">
+                            <option value="">班別</option>
+                            ${Object.keys(STUDENTS).sort().map(c => `<option value="${c}">${c}</option>`).join("")}
+                        </select>
+                        <select class="student-select" onchange="setViolation(decodeURIComponent(this.dataset.key), ${newIdx}, 'detail', this.value)" data-key="${ek}" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; flex:2; min-width:120px;">
+                            <option value="">選擇學生</option>
+                        </select>
+                        <button type="button" class="btn danger small" onclick="this.parentElement.parentElement.remove(); removeViolation(decodeURIComponent(this.dataset.key), ${newIdx})" data-key="${ek}" style="padding:2px 6px;">✕</button>
+                    </div>
+                    <select onchange="setViolation(decodeURIComponent(this.dataset.key), ${newIdx}, 'type', this.value); toggleOtherInput(this)" data-key="${ek}" data-idx="${newIdx}" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; width:100%;">
+                        <option value="">選擇違規類型</option>
+                        <option value="擅自離開坐位">擅自離開坐位</option>
+                        <option value="滋擾同學或老師上課">滋擾同學或老師上課</option>
+                        <option value="違規使用iPad/電話但不即時交出">違規使用iPad/電話但不即時交出</option>
+                        <option value="無故離開/遲入課室">無故離開/遲入課室</option>
+                        <option value="在非指定區域進食">在非指定區域進食</option>
+                        <option value="蓄意弄污學園環境">蓄意弄污學園環境</option>
+                        <option value="蓄意破壞公物">蓄意破壞公物</option>
+                        <option value="戲弄同學">戲弄同學</option>
+                        <option value="校服儀容違規">校服儀容違規</option>
+                        <option value="學生屢勸後仍不聽從老師/導師指示">學生屢勸後仍不聽從老師/導師指示</option>
+                        <option value="放學後沒有清理課室桌櫃桶">放學後沒有清理課室桌櫃桶</option>
+                        <option value="粗言穢語/粗俗言行">粗言穢語/粗俗言行</option>
+                        <option value="在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人">在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人</option>
+                        <option value="未經許可擅自進入其他班別課室或特別室">未經許可擅自進入其他班別課室或特別室</option>
+                        <option value="其他輕微違規事項">其他輕微違規事項</option>
+                    </select>`;
+                const placeholder = list.querySelector(".small");
+                if (placeholder) placeholder.remove();
+                list.appendChild(div);
+                const saveBtn = list.parentElement.querySelector(".v-save-btn");
+                if (saveBtn) saveBtn.style.display = "inline-block";
+            }
+        }
+
+        window.addViolation = function(key) {
+            console.log("addViolation called with key:", key);
+            if (!appData.violations) appData.violations = {};
+            if (!Array.isArray(appData.violations[key])) {
+                appData.violations[key] = [];
+            }
+            appData.violations[key].push({type:"", detail:""});
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            loadDayAF();
+        }
+        function removeViolation(key, index) {
+            if (appData.violations && Array.isArray(appData.violations[key])) {
+                appData.violations[key].splice(index, 1);
+                localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+                loadDayAF();
+            }
+        }
+
+        function saveViolations(key) {
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            saveAppData();
+            if (appData.violations && appData.violations[key]) {
+                appData.violations[key] = [];
+            }
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            alert("違規紀錄已儲存");
+            loadDayAF();
+            loadPatrol();
+        }
+
+        function loadDayAF() {
+            const date = document.getElementById("dayafDate").value;
+            const autoDay = DAY_MAP[date] || "";
+            const daySelect = document.getElementById("daySelect");
+            const container = document.getElementById("dayafList");
+            
+            // 非上學日：清空當值資料
+            if (!autoDay) {
+                if (daySelect) daySelect.value = "";
+                if (container) container.innerHTML = "<p class='small' style='color:#E65100;'>此日為非上學日／假期，無需當值。</p>";
+                const alertEl = document.getElementById("dayafAlert");
+                if (alertEl) alertEl.classList.add("hidden");
+                return;
+            }
+            
+            if (daySelect) daySelect.value = autoDay;
+            const day = daySelect.value;
+            const timeSlotSelect = document.getElementById("timeSlotSelect");
+            const selectedSlot = timeSlotSelect ? timeSlotSelect.value : "all";
+            
+            // Collect unique time slots for the selector
+            const dateObj = new Date(date);
+            const isFri = dateObj.getDay() === 5;
+            const slots = new Set();
+            DUTY_DATA.dayAF.positions.forEach(item => {
+                const t = isFri && item.timeFri ? item.timeFri : (item.timeMonThu || "");
+                if (t) slots.add(t);
+            });
+            if (timeSlotSelect) {
+                const current = timeSlotSelect.value;
+                timeSlotSelect.innerHTML = '<option value="all">全部時段</option>';
+                Array.from(slots).sort().forEach(s => {
+                    timeSlotSelect.innerHTML += `<option value="${s}">${s}</option>`;
+                });
+                if (current && (current === "all" || slots.has(current))) {
+                    timeSlotSelect.value = current;
+                }
+            }
+
+            let missing = [];
+            let html = "";
+
+            DUTY_DATA.dayAF.positions.forEach(item => {
+                const original = item.teachers[day];
+                if (!original) return;
+                const displayTime = isFri && item.timeFri ? item.timeFri : (item.timeMonThu || "");
+                if (!displayTime) return;
+                if (selectedSlot !== "all" && displayTime !== selectedSlot) return;
+                
+                const teacher = getTeacher("dayaf", date, day, item.pos, original);
+                const key = `dayaf_${date}_${day}_${item.pos}`;
+                const status = getStatus(key);
+                const savedTime = getSavedTime(key);
+                if (status === "pending" || status === "absent") missing.push(`${teacher}（${item.pos}）`);
+                const violations = (appData.violations && Array.isArray(appData.violations[key])) ? appData.violations[key] : [];
+                let violationHtml = "";
+                violations.forEach((v, idx) => {
+                    const ek = encodeURIComponent(key);
+                    violationHtml += `
+                        <div style="margin-bottom:8px; padding:6px; background:#fff; border-radius:4px;">
+                            <div style="display:flex; gap:4px; align-items:center; margin-bottom:4px;">
+                                <input type="text" value="${v.detail||''}" placeholder="學生姓名／班別" 
+                                       onchange="setViolation(decodeURIComponent(this.dataset.key), ${idx}, 'detail', this.value)" data-key="${ek}"
+                                       style="padding:4px; border:1px solid #FFCC80; border-radius:4px; flex:1;">
+                                <button type="button" class="btn danger small" onclick="removeViolation(decodeURIComponent(this.dataset.key), ${idx})" data-key="${ek}" style="padding:2px 6px;">✕</button>
+                            </div>
+                            <select onchange="setViolation(decodeURIComponent(this.dataset.key), ${idx}, 'type', this.value); toggleOtherInput(this)" data-key="${ek}" data-idx="${idx}" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; width:100%;">
+                                <option value="" ${!v.type?"selected":""}>選擇違規類型</option>
+                                <option value="擅自離開坐位" ${v.type==="擅自離開坐位"?"selected":""}>擅自離開坐位</option>
+                                <option value="滋擾同學或老師上課" ${v.type==="滋擾同學或老師上課"?"selected":""}>滋擾同學或老師上課</option>
+                                <option value="違規使用iPad/電話但不即時交出" ${v.type==="違規使用iPad/電話但不即時交出"?"selected":""}>違規使用iPad/電話但不即時交出</option>
+                                <option value="無故離開/遲入課室" ${v.type==="無故離開/遲入課室"?"selected":""}>無故離開/遲入課室</option>
+                                <option value="在非指定區域進食" ${v.type==="在非指定區域進食"?"selected":""}>在非指定區域進食</option>
+                                <option value="蓄意弄污學園環境" ${v.type==="蓄意弄污學園環境"?"selected":""}>蓄意弄污學園環境</option>
+                                <option value="蓄意破壞公物" ${v.type==="蓄意破壞公物"?"selected":""}>蓄意破壞公物</option>
+                                <option value="戲弄同學" ${v.type==="戲弄同學"?"selected":""}>戲弄同學</option>
+                                <option value="校服儀容違規" ${v.type==="校服儀容違規"?"selected":""}>校服儀容違規</option>
+                                <option value="學生屢勸後仍不聽從老師/導師指示" ${v.type==="學生屢勸後仍不聽從老師/導師指示"?"selected":""}>學生屢勸後仍不聽從老師/導師指示</option>
+                                <option value="放學後沒有清理課室桌櫃桶" ${v.type==="放學後沒有清理課室桌櫃桶"?"selected":""}>放學後沒有清理課室桌櫃桶</option>
+                                <option value="粗言穢語/粗俗言行" ${v.type==="粗言穢語/粗俗言行"?"selected":""}>粗言穢語/粗俗言行</option>
+                                <option value="在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人" ${v.type==="在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人"?"selected":""}>在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人</option>
+                                <option value="未經許可擅自進入其他班別課室或特別室" ${v.type==="未經許可擅自進入其他班別課室或特別室"?"selected":""}>未經許可擅自進入其他班別課室或特別室</option>
+                                <option value="其他輕微違規事項" ${v.type==="其他輕微違規事項"?"selected":""}>其他輕微違規事項</option>
+                            </select>
+                        </div>`;
+                });
+                html += `
+                    <div class="duty-row">
+                        <div class="duty-info">
+                            <strong>${item.pos}</strong>
+                            <div class="small">${displayTime}${item.start ? "（開始 " + item.start + "）" : ""}</div>
+                            <input class="edit-input" type="text" value="${teacher}" 
+                                   onchange="setOverride('dayaf','${date}','${day}','${item.pos}', this.value); loadDayAF()"
+                                   placeholder="可修改老師姓名">
+                            ${savedTime ? `<div class="saved-time">儲存時間：${savedTime}</div>` : ""}
+                            <div style="margin-top:8px; padding:8px; background:#FFF8F0; border-radius:6px; font-size:13px;">
+                                <div style="margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                                    <strong>違規學生紀錄</strong>
+                                    <button type="button" class="btn small" onclick="addViolationByIndex(this)" data-idx="${DUTY_DATA.dayAF.positions.indexOf(item)}" style="padding:2px 8px;">＋ 新增學生</button>
+                                </div>
+                                <div class="vlist" data-idx="${DUTY_DATA.dayAF.positions.indexOf(item)}">${violationHtml || '<div class="small" style="color:#999;">按「＋ 新增學生」開始記錄</div>'}</div>
+                                <button type="button" class="btn save small v-save-btn" onclick="saveViolations('${key}')" style="margin-top:6px;">儲存違規紀錄</button>
+                            </div>
+                        </div>
+                        <div class="duty-actions">
+                            <span class="status ${status}">${statusText(status)}</span><br>
+                            <button class="btn success small ${tempMarks[key]==='present'?'temp-selected':''}" onclick="setTempStatus('${key}','present')" ${shouldLock(key, date, displayTime) ? 'disabled' : ''} style="${shouldLock(key, date, displayTime) ? 'opacity:0.4;pointer-events:none;background:#ccc' : ''}">到</button>
+                            <button class="btn danger small ${tempMarks[key]==='absent'?'temp-selected':''}" onclick="setTempStatus('${key}','absent')" ${shouldLock(key, date, displayTime) ? 'disabled' : ''} style="${shouldLock(key, date, displayTime) ? 'opacity:0.4;pointer-events:none;background:#ccc' : ''}">缺</button>
+                            <br><button class="btn save small" onclick="saveMarks()" ${shouldLock(key, date, displayTime) ? 'disabled' : ''} style="${shouldLock(key, date, displayTime) ? 'opacity:0.4;pointer-events:none;background:#ccc' : ''}">儲存</button>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = html || "<p class='small'>無資料</p>";
+
+            const alertEl = document.getElementById("dayafAlert");
+            if (missing.length) {
+                document.getElementById("dayafMissing").innerHTML = missing.map(m => "• " + m).join("<br>");
+                alertEl.classList.remove("hidden");
+            } else alertEl.classList.add("hidden");
+        }
+
+        function addPatrolViolation(btn) {
+            const date = document.getElementById("patrolDate").value;
+            const day = document.getElementById("patrolDay").value;
+            const idx = parseInt(btn.getAttribute("data-idx"));
+            const item = DUTY_DATA.patrol.periods[idx];
+            if (!item) return;
+            const key = `patrol_${date}_${day}_${item.period}`;
+            if (!appData.violations) appData.violations = {};
+            if (!Array.isArray(appData.violations[key])) appData.violations[key] = [];
+            const newIdx = appData.violations[key].length;
+            appData.violations[key].push({type:"", detail:""});
+            localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+            
+            const list = btn.closest(".duty-info").querySelector(".vlist");
+            if (list) {
+                const ek = encodeURIComponent(key);
+                const div = document.createElement("div");
+                div.style.cssText = "margin-bottom:8px; padding:6px; background:#fff; border-radius:4px;";
+                div.innerHTML = `
+                    <div style="display:flex; gap:4px; align-items:center; margin-bottom:4px;">
+                        <select onchange="filterStudents(this)" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; width:60px; font-size:13px;">
+                            <option value="">班別</option>
+                            ${Object.keys(STUDENTS).sort().map(c => `<option value="${c}">${c}</option>`).join("")}
+                        </select>
+                        <select class="student-select" onchange="setViolation(decodeURIComponent(this.dataset.key), ${newIdx}, 'detail', this.value)" data-key="${ek}" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; flex:2; min-width:120px;">
+                            <option value="">選擇學生</option>
+                        </select>
+                        <button type="button" class="btn danger small" onclick="this.parentElement.parentElement.remove()" style="padding:2px 6px;">✕</button>
+                    </div>
+                    <select onchange="setViolation(decodeURIComponent(this.dataset.key), ${newIdx}, 'type', this.value); toggleOtherInput(this)" data-key="${ek}" data-idx="${newIdx}" style="padding:4px; border:1px solid #FFCC80; border-radius:4px; width:100%;">
+                        <option value="">選擇違規類型</option>
+                        <option value="擅自離開坐位">擅自離開坐位</option>
+                        <option value="滋擾同學或老師上課">滋擾同學或老師上課</option>
+                        <option value="違規使用iPad/電話但不即時交出">違規使用iPad/電話但不即時交出</option>
+                        <option value="無故離開/遲入課室">無故離開/遲入課室</option>
+                        <option value="在非指定區域進食">在非指定區域進食</option>
+                        <option value="蓄意弄污學園環境">蓄意弄污學園環境</option>
+                        <option value="蓄意破壞公物">蓄意破壞公物</option>
+                        <option value="戲弄同學">戲弄同學</option>
+                        <option value="校服儀容違規">校服儀容違規</option>
+                        <option value="學生屢勸後仍不聽從老師/導師指示">學生屢勸後仍不聽從老師/導師指示</option>
+                        <option value="放學後沒有清理課室桌櫃桶">放學後沒有清理課室桌櫃桶</option>
+                        <option value="粗言穢語/粗俗言行">粗言穢語/粗俗言行</option>
+                        <option value="在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人">在走廊、樓梯或課室附近喧嘩、追逐、嬉戲，影響他人</option>
+                        <option value="未經許可擅自進入其他班別課室或特別室">未經許可擅自進入其他班別課室或特別室</option>
+                        <option value="其他輕微違規事項">其他輕微違規事項</option>
+                    </select>`;
+                list.appendChild(div);
+            }
+        }
+
+        function loadPatrol() {
+            const date = document.getElementById("patrolDate").value;
+            const autoDay = DAY_MAP[date] || "";
+            const daySelect = document.getElementById("patrolDay");
+            const container = document.getElementById("patrolList");
+            
+            if (!autoDay) {
+                if (daySelect) daySelect.value = "";
+                if (container) container.innerHTML = "<p class='small' style='color:#E65100;'>此日為非上學日／假期，無需巡堂。</p>";
+                return;
+            }
+            
+            if (daySelect) daySelect.value = autoDay;
+            const day = daySelect.value;
+            let missing = [];
+            let html = "";
+
+            DUTY_DATA.patrol.periods.forEach(item => {
+                const original = item.teachers[day];
+                if (!original) return;
+                const teacher = getTeacher("patrol", date, day, item.period, original);
+                const key = `patrol_${date}_${day}_${item.period}`;
+                const status = getStatus(key);
+                const savedTime = getSavedTime(key);
+                if (status === "pending" || status === "absent") missing.push(`${teacher}（${item.period}）`);
+                const pIdx = DUTY_DATA.patrol.periods.indexOf(item);
+                const timeMatch = item.period.match(/\((\d{2}:\d{2})-(\d{2}:\d{2})\)/);
+                const patrolTime = timeMatch ? timeMatch[1] + "–" + timeMatch[2] : "08:00–08:30";
+                const pastEnd = !appData.isAdminUnlocked && isPastEndTime(date, patrolTime) && !isBeforeStartTime(date, patrolTime);
+                const grayStyle = pastEnd ? 'opacity:0.5;pointer-events:none;' : '';
+                html += `
+                    <div class="duty-row" style="${grayStyle}">
+                        <div class="duty-info">
+                            <strong>${item.period}</strong>
+                            <input class="edit-input" type="text" value="${teacher}" 
+                                   onchange="setOverride('patrol','${date}','${day}','${item.period}', this.value); loadPatrol()"
+                                   placeholder="可修改老師姓名" ${pastEnd ? 'disabled' : ''}>
+                            ${pastEnd ? '<div class="small" style="color:#999;">已過時段</div>' : ''}
+                            ${savedTime ? `<div class="saved-time">儲存時間：${savedTime}</div>` : ""}
+                            <div style="margin-top:8px; padding:8px; background:#FFF8F0; border-radius:6px; font-size:13px;">
+                                <div style="margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                                    <strong>違規學生紀錄</strong>
+                                    <button type="button" class="btn small" onclick="addPatrolViolation(this)" data-idx="${pIdx}" style="padding:2px 8px;">＋ 新增學生</button>
+                                </div>
+                                <div class="vlist"></div>
+                                <button type="button" class="btn save small" onclick="saveViolations('${key}')" style="margin-top:6px;">儲存違規紀錄</button>
+                            </div>
+                        </div>
+                        <div class="duty-actions">
+                            <span class="status ${status}">${statusText(status)}</span><br>
+                            <button class="btn success small" onclick="setTempStatus('${key}','present')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>到</button>
+                            <button class="btn danger small" onclick="setTempStatus('${key}','absent')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>缺</button>
+                            <br><button class="btn save small" onclick="saveMarks()" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>儲存</button>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+
+            const alertEl = document.getElementById("patrolAlert");
+            if (missing.length) {
+                document.getElementById("patrolMissing").innerHTML = missing.map(m => "• " + m).join("<br>");
+                alertEl.classList.remove("hidden");
+            } else alertEl.classList.add("hidden");
+        }
+
+        function loadOutdoor() {
+            const date = document.getElementById("outdoorDate").value;
+            const item = DUTY_DATA.outdoor.find(o => o.date === date);
+            const container = document.getElementById("outdoorList");
+            if (!item) {
+                container.innerHTML = "<p class='small'>此日期無校外巡邏當值安排</p>";
+                document.getElementById("outdoorAlert").classList.add("hidden");
+                return;
+            }
+            const t1 = getTeacher("outdoor", date, "", "同事1", item.t1);
+            const t2 = getTeacher("outdoor", date, "", "同事2", item.t2);
+            const key1 = `outdoor_${date}_1`;
+            const key2 = `outdoor_${date}_2`;
+            const st1 = getStatus(key1);
+            const st2 = getStatus(key2);
+            const st1Time = getSavedTime(key1);
+            const st2Time = getSavedTime(key2);
+            let missing = [];
+            if (st1 === "pending" || st1 === "absent") missing.push(t1);
+            if (st2 === "pending" || st2 === "absent") missing.push(t2);
+
+            container.innerHTML = `
+                <div class="duty-row">
+                    <div class="duty-info">
+                        <strong>校外巡邏同事 1</strong>
+                        <div class="small">${date}</div>
+                        <input class="edit-input" type="text" value="${t1}" 
+                               onchange="setOverride('outdoor','${date}','','同事1', this.value); loadOutdoor()">
+                        ${st1Time ? `<div class="saved-time">儲存時間：${st1Time}</div>` : ""}
+                    </div>
+                    <div class="duty-actions">
+                        <span class="status ${st1}">${statusText(st1)}</span><br>
+                        <button class="btn success small" onclick="setTempStatus('${key1}','present')">到</button>
+                        <button class="btn danger small" onclick="setTempStatus('${key1}','absent')">缺</button>
+                        <br><button class="btn save small" onclick="saveMarks()">儲存</button>
+                    </div>
+                </div>
+                <div class="duty-row">
+                    <div class="duty-info">
+                        <strong>校外巡邏同事 2</strong>
+                        <input class="edit-input" type="text" value="${t2}" 
+                               onchange="setOverride('outdoor','${date}','','同事2', this.value); loadOutdoor()">
+                        ${st2Time ? `<div class="saved-time">儲存時間：${st2Time}</div>` : ""}
+                    </div>
+                    <div class="duty-actions">
+                        <span class="status ${st2}">${statusText(st2)}</span><br>
+                        <button class="btn success small" onclick="setTempStatus('${key2}','present')">到</button>
+                        <button class="btn danger small" onclick="setTempStatus('${key2}','absent')">缺</button>
+                        <br><button class="btn save small" onclick="saveMarks()">儲存</button>
+                    </div>
+                </div>`;
+
+            const alertEl = document.getElementById("outdoorAlert");
+            if (missing.length) {
+                document.getElementById("outdoorMissing").innerHTML = missing.map(m => "• " + m).join("<br>");
+                alertEl.classList.remove("hidden");
+            } else alertEl.classList.add("hidden");
+        }
+
+        function loadSaturday() {
+            const date = document.getElementById("satDate").value;
+            const item = DUTY_DATA.saturday.find(s => s.date === date);
+            const container = document.getElementById("satList");
+            if (!item) {
+                container.innerHTML = "<p class='small'>此日期無星期六／假期當值安排</p>";
+                document.getElementById("satAlert").classList.add("hidden");
+                return;
+            }
+            const teacher = getTeacher("sat", date, "", "當值", item.teacher);
+            const key = `sat_${date}`;
+            const status = getStatus(key);
+            const savedTime = getSavedTime(key);
+            let missing = [];
+            if (status === "pending" || status === "absent") missing.push(teacher);
+            container.innerHTML = `
+                <div class="duty-row">
+                    <div class="duty-info">
+                        <strong>星期六／假期當值</strong>
+                        <div class="small">${date}</div>
+                        <input class="edit-input" type="text" value="${teacher}" 
+                               onchange="setOverride('sat','${date}','','當值', this.value); loadSaturday()">
+                        ${savedTime ? `<div class="saved-time">儲存時間：${savedTime}</div>` : ""}
+                    </div>
+                    <div class="duty-actions">
+                        <span class="status ${status}">${statusText(status)}</span><br>
+                        <button class="btn success small" onclick="setTempStatus('${key}','present')">到</button>
+                        <button class="btn danger small" onclick="setTempStatus('${key}','absent')">缺</button>
+                        <br><button class="btn save small" onclick="saveMarks()">儲存</button>
+                    </div>
+                </div>`;
+            const alertEl = document.getElementById("satAlert");
+            if (missing.length) {
+                document.getElementById("satMissing").innerHTML = missing.map(m => "• " + m).join("<br>");
+                alertEl.classList.remove("hidden");
+            } else alertEl.classList.add("hidden");
+        }
+
+        function loadExam() {
+            const type = document.getElementById("examType").value;
+            let data;
+            if (type === "firstExam") data = DUTY_DATA.firstExam;
+            else if (type === "exam") data = DUTY_DATA.exam;
+            else data = DUTY_DATA.postExam;
+            const today = new Date().toISOString().split("T")[0];
+            const container = document.getElementById("examList");
+            let html = "";
+            data.forEach(item => {
+                const teacher = getTeacher(type, item.date, "", "放學清場", item.teacher);
+                const key = `${type === "firstExam" ? "firstexam" : (type === "postExam" || type === "post") ? "postexam" : type}_${item.date}`;
+                const status = getStatus(key);
+                const savedTime = getSavedTime(key);
+                const isToday = item.date === today;
+                const notToday = !appData.isAdminUnlocked && !isToday;
+                const grayStyle = notToday ? 'opacity:0.5;pointer-events:none;' : '';
+                html += `
+                    <div class="duty-row" style="${isToday ? 'background:#FFF3E0;border-radius:8px;padding:8px;' : ''} ${grayStyle}">
+                        <div class="duty-info">
+                            <strong>${item.date}</strong>
+                            ${isToday ? '<span class="small" style="color:#E65100;"> ★ 今日</span>' : ''}
+                            ${notToday ? '<span class="small" style="color:#999;"> 未到當日</span>' : ''}
+                            <input class="edit-input" type="text" value="${teacher}" 
+                                   onchange="setOverride('${type}','${item.date}','','放學清場', this.value); loadExam()" ${notToday ? 'disabled' : ''}>
+                            ${savedTime ? `<div class="saved-time">儲存時間：${savedTime}</div>` : ""}
+                        </div>
+                        <div class="duty-actions">
+                            <span class="status ${status}">${statusText(status)}</span><br>
+                            <button class="btn success small" onclick="setTempStatus('${key}','present')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>到</button>
+                            <button class="btn danger small" onclick="setTempStatus('${key}','absent')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>缺</button>
+                            <br><button class="btn save small" onclick="saveMarks()" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>儲存</button>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function loadSpecial() {
+            const container = document.getElementById("specialList");
+            const today = new Date().toISOString().split("T")[0];
+            let html = "";
+            DUTY_DATA.special.forEach(item => {
+                const teacher = getTeacher("special", item.date, "", item.event, item.teacher);
+                const key = `special_${item.date}`;
+                const status = getStatus(key);
+                const savedTime = getSavedTime(key);
+                const isToday = item.date === today;
+                const notToday = !appData.isAdminUnlocked && !isToday;
+                const grayStyle = notToday ? 'opacity:0.5;pointer-events:none;' : '';
+                html += `
+                    <div class="duty-row" style="${isToday ? 'background:#FFF3E0;border-radius:8px;padding:8px;' : ''} ${grayStyle}">
+                        <div class="duty-info">
+                            <strong>${item.date}</strong> ${item.event}
+                            ${isToday ? '<span class="small" style="color:#E65100;"> ★ 今日</span>' : ''}
+                            ${notToday ? '<span class="small" style="color:#999;"> 未到當日</span>' : ''}
+                            <input class="edit-input" type="text" value="${teacher}" 
+                                   onchange="setOverride('special','${item.date}','','${item.event}', this.value); loadSpecial()" ${notToday ? 'disabled' : ''}>
+                            ${savedTime ? `<div class="saved-time">儲存時間：${savedTime}</div>` : ""}
+                        </div>
+                        <div class="duty-actions">
+                            <span class="status ${status}">${statusText(status)}</span><br>
+                            <button class="btn success small" onclick="setTempStatus('${key}','present')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>到</button>
+                            <button class="btn danger small" onclick="setTempStatus('${key}','absent')" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>缺</button>
+                            <br><button class="btn save small" onclick="saveMarks()" ${!appData.isAdminUnlocked && savedTime ? 'disabled style="opacity:0.5"' : ''}>儲存</button>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function getDayAFNote(key, startTime, endTime) {
+            const rec = appData.attendance[key];
+            if (!rec || !rec.savedAt) return "缺席";
+            const saved = new Date(rec.savedAt);
+            const date = key.split("_")[1];
+            const start = new Date(date + "T" + startTime + ":00");
+            const fiveMin = new Date(start.getTime() + 5 * 60 * 1000);
+            if (saved <= fiveMin) return "準時";
+            return "遲到";
+        }
+        function statusText(s) {
+            return {pending:"待確認", present:"已到", absent:"未到"}[s] || "待確認";
+        }
+
+        function notifyMissing(type) {
+            let missing = [];
+            if (type === "dayaf") {
+                const date = document.getElementById("dayafDate").value;
+                const day = document.getElementById("daySelect").value;
+                DUTY_DATA.dayAF.positions.forEach(item => {
+                    const original = item.teachers[day];
+                    if (!original) return;
+                    const teacher = getTeacher("dayaf", date, day, item.pos, original);
+                    const key = `dayaf_${date}_${day}_${item.pos}`;
+                    if (getStatus(key) === "pending" || getStatus(key) === "absent") missing.push(`${teacher}（${item.pos}）`);
+                });
+            } else if (type === "patrol") {
+                const date = document.getElementById("patrolDate").value;
+                const day = document.getElementById("patrolDay").value;
+                DUTY_DATA.patrol.periods.forEach(item => {
+                    const original = item.teachers[day];
+                    if (!original) return;
+                    const teacher = getTeacher("patrol", date, day, item.period, original);
+                    const key = `patrol_${date}_${day}_${item.period}`;
+                    if (getStatus(key) === "pending" || getStatus(key) === "absent") missing.push(`${teacher}（${item.period}）`);
+                });
+            } else if (type === "outdoor") {
+                const date = document.getElementById("outdoorDate").value;
+                const item = DUTY_DATA.outdoor.find(o => o.date === date);
+                if (item) {
+                    const t1 = getTeacher("outdoor", date, "", "同事1", item.t1);
+                    const t2 = getTeacher("outdoor", date, "", "同事2", item.t2);
+                    if (getStatus(`outdoor_${date}_1`) === "pending" || getStatus(`outdoor_${date}_1`) === "absent") missing.push(t1);
+                    if (getStatus(`outdoor_${date}_2`) === "pending" || getStatus(`outdoor_${date}_2`) === "absent") missing.push(t2);
+                }
+            } else if (type === "saturday") {
+                const date = document.getElementById("satDate").value;
+                const item = DUTY_DATA.saturday.find(s => s.date === date);
+                if (item) {
+                    const teacher = getTeacher("sat", date, "", "當值", item.teacher);
+                    if (getStatus(`sat_${date}`) === "pending" || getStatus(`sat_${date}`) === "absent") missing.push(teacher);
+                }
+            }
+            if (!missing.length) return alert("目前沒有未出勤的同事");
+            const msg = encodeURIComponent(`【當值出勤提醒】\n以下同事尚未確認出勤：\n${missing.map(m=>"• "+m).join("\n")}\n請跟進。`);
+            if (appData.waPhone && appData.waApiKey) {
+                const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(appData.waPhone)}&text=${msg}&apikey=${appData.waApiKey}`;
+                fetch(url).then(r=>r.text()).then(t=>alert("已發送通知\n"+t)).catch(()=>alert("發送失敗，請檢查設定"));
+            } else {
+                alert("請先在設定頁填入 WhatsApp 電話及 API Key");
+            }
+        }
+
+        function saveSettings() {
+            appData.waPhone = document.getElementById("waPhone").value.trim();
+            appData.waApiKey = document.getElementById("waApiKey").value.trim();
+            saveAppData();
+            alert("設定已儲存");
+        }
+
+        function exportData() {
+            const pw = prompt("請輸入管理密碼以匯出資料：");
+            if (pw !== appData.password) {
+                alert("密碼錯誤，無法匯出");
+                return;
+            }
+            const blob = new Blob([JSON.stringify(appData, null, 2)], {type:"application/json"});
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "duty-system-data.json";
+            a.click();
+            alert("已匯出");
+        }
+
+        function clearAttendance() {
+            if (confirm("確定清除所有出勤記錄？（調更老師的設定會保留）")) {
+                appData.attendance = {};
+                appData.notified = {};
+                tempMarks = {};
+                localStorage.setItem("schoolDuty2026v5", JSON.stringify(appData));
+                // Send clear command to sheet
+                if (SCRIPT_URL) {
+                    fetch(SCRIPT_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        body: JSON.stringify({action: "clear"})
+                    }).catch(() => {});
+                }
+                alert("出勤記錄已清除");
+                location.reload();
+            }
+        }
+
+        loadAppData();
+    </script>
+</body>
+</html>
