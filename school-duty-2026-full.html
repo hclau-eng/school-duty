@@ -1050,13 +1050,17 @@
                 const savedTime = getSavedTime(key);
                 if (status === "pending" || status === "absent") missing.push(`${teacher}（${item.period}）`);
                 const pIdx = DUTY_DATA.patrol.periods.indexOf(item);
+                const patrolTime = item.time || "08:00–08:30";
+                const pastEnd = !appData.isAdminUnlocked && isPastEndTime(date, patrolTime);
+                const grayStyle = pastEnd ? 'opacity:0.5;pointer-events:none;' : '';
                 html += `
-                    <div class="duty-row">
+                    <div class="duty-row" style="${grayStyle}">
                         <div class="duty-info">
                             <strong>${item.period}</strong>
                             <input class="edit-input" type="text" value="${teacher}" 
                                    onchange="setOverride('patrol','${date}','${day}','${item.period}', this.value); loadPatrol()"
-                                   placeholder="可修改老師姓名">
+                                   placeholder="可修改老師姓名" ${pastEnd ? 'disabled' : ''}>
+                            ${pastEnd ? '<div class="small" style="color:#999;">已過時段</div>' : ''}
                             ${savedTime ? `<div class="saved-time">儲存時間：${savedTime}</div>` : ""}
                             <div style="margin-top:8px; padding:8px; background:#FFF8F0; border-radius:6px; font-size:13px;">
                                 <div style="margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
@@ -1196,13 +1200,16 @@
                 const status = getStatus(key);
                 const savedTime = getSavedTime(key);
                 const isToday = item.date === today;
+                const notToday = !appData.isAdminUnlocked && !isToday;
+                const grayStyle = notToday ? 'opacity:0.5;pointer-events:none;' : '';
                 html += `
-                    <div class="duty-row" style="${isToday ? 'background:#FFF3E0;border-radius:8px;padding:8px;' : ''}">
+                    <div class="duty-row" style="${isToday ? 'background:#FFF3E0;border-radius:8px;padding:8px;' : ''} ${grayStyle}">
                         <div class="duty-info">
                             <strong>${item.date}</strong>
                             ${isToday ? '<span class="small" style="color:#E65100;"> ★ 今日</span>' : ''}
+                            ${notToday ? '<span class="small" style="color:#999;"> 未到當日</span>' : ''}
                             <input class="edit-input" type="text" value="${teacher}" 
-                                   onchange="setOverride('${type}','${item.date}','','放學清場', this.value); loadExam()">
+                                   onchange="setOverride('${type}','${item.date}','','放學清場', this.value); loadExam()" ${notToday ? 'disabled' : ''}>
                             ${savedTime ? `<div class="saved-time">儲存時間：${savedTime}</div>` : ""}
                         </div>
                         <div class="duty-actions">
