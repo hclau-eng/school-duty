@@ -1060,7 +1060,8 @@
                 const savedTime = getSavedTime(key);
                 if (status === "pending" || status === "absent") missing.push(`${teacher}（${item.period}）`);
                 const pIdx = DUTY_DATA.patrol.periods.indexOf(item);
-                const patrolTime = item.time || "08:00–08:30";
+                const timeMatch = item.period.match(/\((\d{2}:\d{2})-(\d{2}:\d{2})\)/);
+                const patrolTime = timeMatch ? timeMatch[1] + "–" + timeMatch[2] : "08:00–08:30";
                 const pastEnd = !appData.isAdminUnlocked && isPastEndTime(date, patrolTime) && !isBeforeStartTime(date, patrolTime);
                 const grayStyle = pastEnd ? 'opacity:0.5;pointer-events:none;' : '';
                 html += `
@@ -1243,13 +1244,16 @@
                 const status = getStatus(key);
                 const savedTime = getSavedTime(key);
                 const isToday = item.date === today;
+                const notToday = !appData.isAdminUnlocked && !isToday;
+                const grayStyle = notToday ? 'opacity:0.5;pointer-events:none;' : '';
                 html += `
-                    <div class="duty-row" style="${isToday ? 'background:#FFF3E0;border-radius:8px;padding:8px;' : ''}">
+                    <div class="duty-row" style="${isToday ? 'background:#FFF3E0;border-radius:8px;padding:8px;' : ''} ${grayStyle}">
                         <div class="duty-info">
                             <strong>${item.date}</strong> ${item.event}
                             ${isToday ? '<span class="small" style="color:#E65100;"> ★ 今日</span>' : ''}
+                            ${notToday ? '<span class="small" style="color:#999;"> 未到當日</span>' : ''}
                             <input class="edit-input" type="text" value="${teacher}" 
-                                   onchange="setOverride('special','${item.date}','','${item.event}', this.value); loadSpecial()">
+                                   onchange="setOverride('special','${item.date}','','${item.event}', this.value); loadSpecial()" ${notToday ? 'disabled' : ''}>
                             ${savedTime ? `<div class="saved-time">儲存時間：${savedTime}</div>` : ""}
                         </div>
                         <div class="duty-actions">
